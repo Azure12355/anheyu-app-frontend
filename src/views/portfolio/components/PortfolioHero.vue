@@ -266,7 +266,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 3rem 1rem 4rem;
+  padding: 0rem 1rem 4rem;
   background-color: var(--anzhiyu-background);
   transition: background-color 0.5s ease;
 }
@@ -335,6 +335,8 @@ onUnmounted(() => {
     width: 100%;
     max-width: 1100px;
     text-align: center;
+    transform: scale(0.9); /* Global scale down to fit viewport */
+    transform-origin: center center;
 }
 
 /* --- Tech Stacks (Redesigned) --- */
@@ -342,8 +344,8 @@ onUnmounted(() => {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
-    margin-bottom: 3rem;
+    gap: 10px;
+    margin-bottom: 2rem; /* Reduced margin */
     width: 100%;
 }
 
@@ -378,7 +380,6 @@ onUnmounted(() => {
         transform: translateY(-4px) scale(1.05);
         background: rgba(255, 255, 255, 0.65);
         border-color: var(--anzhiyu-theme);
-        box-shadow: 0 10px 25px -5px rgba(var(--anzhiyu-theme-rgb, 64, 158, 255), 0.3);
         color: var(--anzhiyu-theme);
         
         .dark-mode & {
@@ -407,7 +408,7 @@ onUnmounted(() => {
 
 /* --- Main Title --- */
 .hero-title-main {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem; /* Reduced margin */
 }
 
 .title-line {
@@ -453,19 +454,19 @@ onUnmounted(() => {
 
 /* --- Description --- */
 .hero-description {
-    font-size: 1.25rem;
+    font-size: 1.15rem; /* Slightly smaller */
     color: var(--anzhiyu-secondtext);
     max-width: 680px;
-    line-height: 1.7;
-    margin-bottom: 3.5rem;
+    line-height: 1.6;
+    margin-bottom: 2.5rem; /* Reduced margin */
 }
 
 /* --- Command Bar --- */
 .command-bar-wrapper {
     position: relative;
-    margin-bottom: 3.5rem;
+    margin-bottom: 2.5rem; /* Reduced margin */
     width: 100%;
-    max-width: 600px;
+    max-width: 580px;
 }
 
 .command-bar {
@@ -518,8 +519,8 @@ onUnmounted(() => {
 /* --- Action Buttons --- */
 .hero-actions {
     display: flex;
-    gap: 1.5rem;
-    margin-bottom: 5rem;
+    gap: 1.25rem;
+    margin-bottom: 3.5rem; /* Reduced margin */
 }
 
 .btn-primary {
@@ -531,12 +532,10 @@ onUnmounted(() => {
     border-radius: 12px;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(var(--anzhiyu-theme-rgb, 64, 158, 255), 0.4);
     transition: all 0.3s;
 
     &:hover {
         transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 8px 25px rgba(var(--anzhiyu-theme-rgb, 64, 158, 255), 0.5);
     }
 }
 
@@ -563,7 +562,7 @@ onUnmounted(() => {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1.25rem;
     width: 100%;
 }
 
