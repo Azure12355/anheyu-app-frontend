@@ -328,6 +328,20 @@ export default [
         }
       },
       {
+        path: "portfolio",
+        name: "Portfolio",
+        component: () => import("@/views/portfolio/index.vue"),
+        meta: {
+          title: () => {
+            const configs = getConfig();
+            const appName = configs?.APP_NAME;
+            return `${appName} - 作品展示`;
+          },
+          showLink: false,
+          keepAlive: true
+        }
+      },
+      {
         path: "user-center",
         name: "UserCenter",
         component: () => import("@/views/post/user-center/index.vue"),

@@ -53,6 +53,44 @@ export function getPluginsList(
       }
     },
 
+    // 自定义插件 - 开发环境处理 Go 模板语法
+    {
+      name: "handle-go-template-syntax",
+      transformIndexHtml(html) {
+        // 只在开发环境中处理
+        if (process.env.NODE_ENV !== "production") {
+          // 移除 {{if .customFooterHTML}}...{{end}} 块（包括换行）
+          html = html.replace(/\{\{if\s+\.customFooterHTML\}\}[\s\S]*?\{\{end\}\}/g, "");
+
+          // 替换其他常见的 Go 模板变量为默认值
+          const replacements: Record<string, string> = {
+            "{{.favicon}}": "/favicon.ico",
+            "{{.themeColor}}": "#4091f7",
+            "{{.pageTitle}}": "ANHEYU",
+            "{{.keywords}}": "ANHEYU,Blog,博客",
+            "{{.pageDescription}}": "ANHEYU Blog",
+            "{{.author}}": "ANHEYU",
+            "{{.ogUrl}}": "",
+            "{{.ogType}}": "website",
+            "{{.ogTitle}}": "ANHEYU",
+            "{{.ogDescription}}": "ANHEYU Blog",
+            "{{.twitterCard}}": "summary_large_image",
+            "{{.twitterUrl}}": "",
+            "{{.twitterTitle}}": "ANHEYU",
+            "{{.twitterDescription}}": "ANHEYU Blog",
+            "{{.customHeaderHTML}}": "",
+            '{{json .initialData}}': "{}"
+          };
+
+          for (const [template, value] of Object.entries(replacements)) {
+            const escaped = template.replace(/[{}]/g, "\\$&");
+            html = html.replace(new RegExp(escaped, "g"), value);
+          }
+        }
+        return html;
+      }
+    },
+
     // 自定义插件 - 生成版本信息文件
     {
       name: "generate-version",
