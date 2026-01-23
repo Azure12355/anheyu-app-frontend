@@ -33,9 +33,9 @@ export function useLayout() {
           defaultOverallStyle = "auto";
           defaultDarkMode = shouldBeDarkByTime();
         } else {
-        defaultOverallStyle =
-          $config.DEFAULT_THEME_MODE === "dark" ? "dark" : "light";
-        defaultDarkMode = $config.DEFAULT_THEME_MODE === "dark";
+          defaultOverallStyle =
+            $config.DEFAULT_THEME_MODE === "dark" ? "dark" : "light";
+          defaultDarkMode = $config.DEFAULT_THEME_MODE === "dark";
         }
       }
 
