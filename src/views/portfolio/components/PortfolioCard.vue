@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { Portfolio } from "@/types/portfolio";
 import { ProjectTypeLabels } from "@/types/portfolio";
+import IconifyIconOnline from "@/components/ReIcon/src/iconifyIconOnline";
 
 defineOptions({
   name: "PortfolioCard"
@@ -39,6 +40,18 @@ const mockColors = computed(() => {
     return colors[index];
 });
 
+// 处理打开链接
+const openLink = (url?: string) => {
+  if (url) {
+    window.open(url, "_blank");
+  }
+};
+
+// 处理查看详情
+const viewDetails = () => {
+  // TODO: Implement details view
+  console.log("View details for", props.portfolio.id);
+};
 </script>
 
 <template>
@@ -60,6 +73,25 @@ const mockColors = computed(() => {
             <i class="anzhiyufont" :class="portfolio.mode === 'light' ? 'anzhiyu-icon-sun' : 'anzhiyu-icon-moon'"></i> 
             {{ portfolio.mode === 'light' ? 'Light' : 'Dark' }}
         </span>
+
+        <!-- 悬浮遮罩与按钮 -->
+        <div class="card-overlay">
+            <button 
+                class="overlay-btn primary" 
+                @click.stop="openLink(portfolio.demo_url)"
+                :disabled="!portfolio.demo_url"
+                title="访问项目"
+            >
+                <IconifyIconOnline icon="ri:external-link-line" class="btn-icon" /> 访问项目
+            </button>
+            <button 
+                class="overlay-btn secondary" 
+                @click.stop="viewDetails"
+                title="查看详情"
+            >
+                <IconifyIconOnline icon="ri:arrow-right-circle-line" class="btn-icon" /> 查看详情
+            </button>
+        </div>
       </div>
     </div>
 
@@ -121,6 +153,20 @@ const mockColors = computed(() => {
     .cover-image {
         transform: scale(1.05);
     }
+    
+    .card-title {
+        color: var(--anzhiyu-theme);
+    }
+
+    .card-overlay {
+        opacity: 1;
+        backdrop-filter: blur(2px);
+    }
+
+    .overlay-btn {
+        transform: translateY(0);
+        opacity: 1;
+    }
   }
 }
 
@@ -164,7 +210,84 @@ const mockColors = computed(() => {
     gap: 4px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     
+    
     .anzhiyufont { font-size: 14px; color: #f59e0b; }
+}
+
+/* Card Overlay */
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.overlay-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 99px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    .btn-icon { 
+        font-size: 18px;
+        transition: transform 0.3s ease; 
+    }
+
+    &:active { transform: scale(0.95); }
+
+    &.primary {
+        background: var(--anzhiyu-theme);
+        color: white;
+        transition-delay: 0.05s;
+
+        &:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(var(--anzhiyu-theme-rgb), 0.5);
+            
+            .btn-icon {
+                transform: translateX(3px) translateY(-3px); /* Flight effect */
+            }
+        }
+        
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+    }
+
+    &.secondary {
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        backdrop-filter: blur(4px);
+        transition-delay: 0.1s;
+
+        &:hover {
+            background: white;
+            color: var(--anzhiyu-theme);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+            .btn-icon {
+                transform: translateX(4px); /* Arrow move effect */
+            }
+        }
+    }
 }
 
 /* Content Section */
@@ -181,14 +304,20 @@ const mockColors = computed(() => {
 
 .category-tag {
     display: inline-block;
-    padding: 4px 12px;
-    border-radius: 6px;
-    background: rgba(255, 237, 213, 0.5); /* Light orange tint default */
-    color: #f97316;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: var(--anzhiyu-theme-op); 
+    color: var(--anzhiyu-theme);
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
     
-    /* Make tags vary slightly based on context if needed, utilizing css vars or just static elegance */
+    &:hover {
+        background: var(--anzhiyu-theme);
+        color: white;
+    }
 }
 
 .card-title {
@@ -201,6 +330,7 @@ const mockColors = computed(() => {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    transition: color 0.3s ease;
 }
 
 .card-description {
