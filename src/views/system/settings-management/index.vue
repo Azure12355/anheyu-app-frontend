@@ -177,7 +177,8 @@
             <div class="section-header">
               <h2>人机验证</h2>
               <p class="section-desc">
-                配置人机验证，支持 Turnstile / 极验 / 系统验证码，保护登录和注册接口
+                配置人机验证，支持 Turnstile / 极验 /
+                系统验证码，保护登录和注册接口
               </p>
             </div>
             <CaptchaSettingsForm v-model="form.frontDesk.captcha" />

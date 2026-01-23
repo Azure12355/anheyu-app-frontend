@@ -39,7 +39,8 @@ const currentProvider = computed(() => model.value.provider);
           人机验证可以有效防止机器人和恶意请求。启用后，用户在登录、注册、忘记密码等场景需要完成验证。
         </p>
         <p style="margin: 8px 0 0">
-          支持三种验证方式：Cloudflare Turnstile（推荐）、极验 GeeTest 4.0、系统图形验证码。
+          支持三种验证方式：Cloudflare Turnstile（推荐）、极验 GeeTest
+          4.0、系统图形验证码。
         </p>
       </template>
     </el-alert>
@@ -47,7 +48,11 @@ const currentProvider = computed(() => model.value.provider);
     <el-divider content-position="left">验证方式</el-divider>
 
     <el-form-item label="选择验证方式">
-      <el-select v-model="model.provider" placeholder="请选择验证方式" style="width: 300px">
+      <el-select
+        v-model="model.provider"
+        placeholder="请选择验证方式"
+        style="width: 300px"
+      >
         <el-option
           v-for="option in providerOptions"
           :key="option.value"
@@ -64,11 +69,7 @@ const currentProvider = computed(() => model.value.provider);
     <template v-if="currentProvider === 'turnstile'">
       <el-divider content-position="left">Cloudflare Turnstile 配置</el-divider>
 
-      <el-alert
-        type="success"
-        :closable="false"
-        style="margin-bottom: 16px"
-      >
+      <el-alert type="success" :closable="false" style="margin-bottom: 16px">
         <template #title>
           获取密钥请访问：
           <el-link
@@ -108,11 +109,7 @@ const currentProvider = computed(() => model.value.provider);
     <template v-else-if="currentProvider === 'geetest'">
       <el-divider content-position="left">极验 GeeTest 4.0 配置</el-divider>
 
-      <el-alert
-        type="success"
-        :closable="false"
-        style="margin-bottom: 16px"
-      >
+      <el-alert type="success" :closable="false" style="margin-bottom: 16px">
         <template #title>
           获取密钥请访问：
           <el-link
@@ -152,11 +149,7 @@ const currentProvider = computed(() => model.value.provider);
     <template v-else-if="currentProvider === 'image'">
       <el-divider content-position="left">系统图形验证码配置</el-divider>
 
-      <el-alert
-        type="success"
-        :closable="false"
-        style="margin-bottom: 16px"
-      >
+      <el-alert type="success" :closable="false" style="margin-bottom: 16px">
         <template #title>
           系统内置的图形验证码，无需第三方服务，简单易用
         </template>
@@ -169,9 +162,7 @@ const currentProvider = computed(() => model.value.provider);
           :max="8"
           :step="1"
         />
-        <div class="el-form-item__info">
-          验证码字符数量，建议 4-6 位
-        </div>
+        <div class="el-form-item__info">验证码字符数量，建议 4-6 位</div>
       </el-form-item>
 
       <el-form-item label="过期时间（秒）">
@@ -181,9 +172,7 @@ const currentProvider = computed(() => model.value.provider);
           :max="600"
           :step="30"
         />
-        <div class="el-form-item__info">
-          验证码有效时间，超时后需要重新获取
-        </div>
+        <div class="el-form-item__info">验证码有效时间，超时后需要重新获取</div>
       </el-form-item>
     </template>
 
