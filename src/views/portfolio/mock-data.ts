@@ -432,10 +432,15 @@ export const mockGetPortfolios = async (params?: {
   type?: string;
   status?: string;
   keyword?: string;
+  mode?: string;
 }) => {
   await mockDelay();
 
-  let filteredList = [...mockPortfolios];
+  // Dynamically assign mode based on ID parity for consistency
+  let filteredList = mockPortfolios.map(p => ({
+    ...p,
+    mode: p.mode || (parseInt(p.id) % 2 === 0 ? 'dark' : 'light') as 'light' | 'dark'
+  }));
 
   // 按类型筛选
   if (params?.type && params.type !== "all") {
@@ -445,6 +450,11 @@ export const mockGetPortfolios = async (params?: {
   // 按状态筛选
   if (params?.status && params.status !== "all") {
     filteredList = filteredList.filter(p => p.status === params.status);
+  }
+
+  // Filter by mode
+  if (params?.mode && params.mode !== "all") {
+    filteredList = filteredList.filter(p => p.mode === params.mode);
   }
 
   // 按关键词搜索

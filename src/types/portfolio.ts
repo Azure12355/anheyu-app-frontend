@@ -60,6 +60,7 @@ export interface Portfolio {
   sort_order: number;
   created_at: string;
   updated_at: string;
+  mode?: "light" | "dark";
 }
 
 // 获取作品列表参数
@@ -69,6 +70,7 @@ export interface GetPortfolioListParams {
   type?: ProjectType;
   status?: ProjectStatus;
   keyword?: string;
+  mode?: string;
 }
 
 // 作品列表响应

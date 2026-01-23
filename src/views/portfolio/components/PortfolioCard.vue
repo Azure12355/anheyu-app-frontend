@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Portfolio } from "@/types/portfolio";
-import {
-  ProjectTypeLabels,
-  ProjectStatusLabels,
-  ProjectStatusColors
-} from "@/types/portfolio";
+import { ProjectTypeLabels } from "@/types/portfolio";
 
 defineOptions({
   name: "PortfolioCard"
@@ -25,88 +21,52 @@ const coverUrl = computed(() => {
   return props.portfolio.cover_url || defaultCover;
 });
 
-// 状态标签颜色和文字
-const statusConfig = computed(() => {
-  const status = props.portfolio.status;
-  return {
-    color: ProjectStatusColors[status],
-    label: ProjectStatusLabels[status]
-  };
-});
-
 // 项目类型标签
 const typeLabel = computed(() => {
   return ProjectTypeLabels[props.portfolio.project_type];
 });
 
-// 格式化时间
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+// 模拟颜色圆点 (基于ID生成固定颜色)
+const mockColors = computed(() => {
+    const colors = [
+        ['#3b82f6', '#8b5cf6', '#10b981'],
+        ['#f59e0b', '#ef4444', '#3b82f6'],
+        ['#10b981', '#3b82f6', '#6366f1'],
+        ['#ec4899', '#8b5cf6', '#f59e0b'],
+    ];
+    // Simple hash from string id
+    const index = props.portfolio.id.charCodeAt(0) % colors.length;
+    return colors[index];
+});
 
-  if (days === 0) return "今天";
-  if (days === 1) return "昨天";
-  if (days < 7) return `${days} 天前`;
-  if (days < 30) return `${Math.floor(days / 7)} 周前`;
-  if (days < 365) return `${Math.floor(days / 30)} 个月前`;
-  return `${Math.floor(days / 365)} 年前`;
-};
 </script>
 
 <template>
   <div
     class="portfolio-card"
-    :class="{ 'three-column': isDoubleColumn }"
     :style="{ '--animation-order': animationOrder }"
   >
-    <div class="card-cover">
-      <img
-        class="cover-image lazy-loading"
-        :data-src="coverUrl"
-        :alt="portfolio.title"
-      />
-      <!-- 状态徽章 -->
-      <div
-        class="status-badge"
-        :style="{ backgroundColor: statusConfig.color }"
-      >
-        {{ statusConfig.label }}
-      </div>
-      <!-- 外部链接按钮 -->
-      <div class="card-actions">
-        <a
-          v-if="portfolio.demo_url"
-          class="action-btn"
-          title="查看演示"
-          :href="portfolio.demo_url"
-          target="_blank"
-          @click.stop
-        >
-          <i class="anzhiyufont anzhiyu-icon-eye-outline" />
-        </a>
-        <a
-          v-if="portfolio.github_url"
-          class="action-btn"
-          title="查看代码"
-          :href="portfolio.github_url"
-          target="_blank"
-          @click.stop
-        >
-          <i class="anzhiyufont anzhiyu-icon-github" />
-        </a>
+    <!-- 图片区域 -->
+    <div class="card-cover-wrapper">
+      <div class="card-cover">
+         <img
+            class="cover-image lazy-loading"
+            :data-src="coverUrl"
+            :alt="portfolio.title"
+        />
+        <!-- 模拟 Light 标签 (视觉装饰) -->
+        <!-- Mode Badge -->
+        <span class="mode-badge" v-if="portfolio.mode">
+            <i class="anzhiyufont" :class="portfolio.mode === 'light' ? 'anzhiyu-icon-sun' : 'anzhiyu-icon-moon'"></i> 
+            {{ portfolio.mode === 'light' ? 'Light' : 'Dark' }}
+        </span>
       </div>
     </div>
 
     <div class="card-content">
-      <!-- 标签区域 -->
-      <div class="card-tags">
-        <span class="type-tag">{{ typeLabel }}</span>
-        <span v-if="portfolio.featured" class="featured-tag">
-          <i class="anzhiyufont anzhiyu-icon-fire" />
-          精选
-        </span>
+      <!-- 标签 -->
+      <div class="tag-row">
+        <span class="category-tag">{{ typeLabel }}</span>
       </div>
 
       <!-- 标题 -->
@@ -119,26 +79,17 @@ const formatDate = (dateString: string) => {
         {{ portfolio.description }}
       </p>
 
-      <!-- 技术栈 -->
-      <div class="card-technologies">
-        <span
-          v-for="tech in portfolio.technologies.slice(0, 5)"
-          :key="tech"
-          class="tech-tag"
-        >
-          {{ tech }}
-        </span>
-        <span v-if="portfolio.technologies.length > 5" class="tech-more">
-          +{{ portfolio.technologies.length - 5 }}
-        </span>
-      </div>
-
-      <!-- 底部信息 -->
+      <!-- 底部 Colors 展示 -->
       <div class="card-footer">
-        <span class="update-time">
-          <i class="anzhiyufont anzhiyu-icon-clock" />
-          {{ formatDate(portfolio.updated_at) }}
-        </span>
+        <span class="footer-label">Colors:</span>
+        <div class="color-dots">
+            <span 
+                v-for="color in mockColors" 
+                :key="color" 
+                class="color-dot"
+                :style="{ backgroundColor: color }"
+            ></span>
+        </div>
       </div>
     </div>
   </div>
@@ -148,295 +99,151 @@ const formatDate = (dateString: string) => {
 .portfolio-card {
   position: relative;
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  margin: 1rem 0;
+  flex-direction: column;
+  width: 100%;
+  border-radius: 24px;
+  background: var(--anzhiyu-card-bg);
+  border: 1px solid var(--anzhiyu-border-color, #eee); /* Delicate border */
   overflow: hidden;
   cursor: pointer;
-  background: var(--anzhiyu-card-bg);
-  border: var(--style-border);
-  border-radius: 12px;
-  transition: all 0.3s ease-in-out;
-
-  // 入场动画
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  
+  /* Initial State for Animation */
   opacity: 0;
   animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   animation-delay: calc(var(--animation-order, 0) * 0.1s);
 
-  // 硬件加速
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-transform-style: preserve-3d;
-  transform-style: preserve-3d;
-
-  &.three-column {
-    flex-direction: column;
-    width: calc(33.333% - 0.416rem);
-    height: auto;
-
-    .card-cover {
-      width: 100%;
-      height: 200px;
-      border-radius: 8px 8px 0 0;
-    }
-
-    .card-content {
-      width: 100%;
-      padding: 16px 20px;
-    }
-  }
-
-  &:active {
-    transform: scale(0.97);
-  }
-
   &:hover {
-    border: var(--style-border-hover);
-    box-shadow: var(--anzhiyu-shadow-main);
-
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -5px rgba(0,0,0,0.1);
+    border-color: transparent;
+    
     .cover-image {
-      transform: scale(1.05);
-    }
-
-    .card-title {
-      color: var(--anzhiyu-main);
-    }
-
-    .action-btn {
-      opacity: 1;
-      transform: translateY(0);
+        transform: scale(1.05);
     }
   }
+}
 
-  .card-cover {
+/* Image Section */
+.card-cover-wrapper {
+    padding: 12px 12px 0 12px; /* Pad image like a frame */
+}
+
+.card-cover {
     position: relative;
-    flex-shrink: 0;
-    width: 45%;
-    min-height: 180px;
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: 16px;
     overflow: hidden;
+    background: var(--anzhiyu-secondbg);
+}
 
-    .cover-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition:
-        transform 0.6s ease,
-        filter 0.6s ease;
-      opacity: 0;
-
-      &.lazy-loading {
-        background: var(--anzhiyu-secondbg);
+.cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+    
+    &.lazy-loading {
         opacity: 0;
-      }
-
-      &.lazy-loaded {
-        opacity: 1;
-      }
     }
+}
 
-    .status-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      padding: 4px 12px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #fff;
-      background: var(--anzhiyu-main);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
+.mode-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    
+    .anzhiyufont { font-size: 14px; color: #f59e0b; }
+}
 
-    .card-actions {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      display: flex;
-      gap: 8px;
-
-      .action-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        color: #fff;
-        cursor: pointer;
-        background: rgba(0, 0, 0, 0.6);
-        border: none;
-        border-radius: 50%;
-        backdrop-filter: blur(10px);
-        opacity: 0;
-        transform: translateY(-10px);
-        transition: all 0.3s ease;
-
-        &:hover {
-          background: rgba(0, 0, 0, 0.8);
-          transform: scale(1.1) !important;
-        }
-
-        .anzhiyufont {
-          font-size: 16px;
-        }
-      }
-    }
-  }
-
-  .card-content {
+/* Content Section */
+.card-content {
+    padding: 24px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    width: 55%;
-    min-width: 0;
-    padding: 2rem;
-  }
+}
 
-  .card-tags {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 0.75rem;
-  }
+.tag-row {
+    margin-bottom: 12px;
+}
 
-  .type-tag {
+.category-tag {
+    display: inline-block;
     padding: 4px 12px;
+    border-radius: 6px;
+    background: rgba(255, 237, 213, 0.5); /* Light orange tint default */
+    color: #f97316;
     font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--anzhiyu-main);
-    background: var(--anzhiyu-theme-op);
-    border-radius: 20px;
-  }
+    font-weight: 600;
+    
+    /* Make tags vary slightly based on context if needed, utilizing css vars or just static elegance */
+}
 
-  .featured-tag {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-    padding: 4px 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-    border-radius: 20px;
-
-    .anzhiyufont {
-      font-size: 0.7rem;
-    }
-  }
-
-  .card-title {
-    display: -webkit-box;
-    margin-bottom: 0.75rem;
-    overflow: hidden;
+.card-title {
     font-size: 1.25rem;
-    font-weight: 700;
+    font-weight: 800;
+    color: var(--anzhiyu-fontcolor);
+    margin-bottom: 8px;
     line-height: 1.3;
-    color: var(--anzhiyu-fontcolor);
-    text-decoration: none;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    transition: color 0.3s;
-  }
-
-  .card-description {
     display: -webkit-box;
-    flex-grow: 1;
-    margin-bottom: 1rem;
-    overflow: hidden;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: var(--anzhiyu-secondtext);
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-  }
+    overflow: hidden;
+}
 
-  .card-technologies {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 1rem;
-  }
-
-  .tech-tag {
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    color: var(--anzhiyu-fontcolor);
-    background: var(--anzhiyu-secondbg);
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &:hover {
-      color: var(--anzhiyu-main);
-      background: var(--anzhiyu-theme-op);
-    }
-  }
-
-  .tech-more {
-    padding: 4px 10px;
-    font-size: 0.75rem;
+.card-description {
+    font-size: 0.95rem;
     color: var(--anzhiyu-secondtext);
-    background: transparent;
-    border: 1px dashed var(--anzhiyu-secondborder);
-    border-radius: 6px;
-  }
+    line-height: 1.6;
+    margin-bottom: 24px;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
-  .card-footer {
+/* Footer Colors */
+.card-footer {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--style-border-always);
-  }
+    gap: 12px;
+}
 
-  .update-time {
+.footer-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--anzhiyu-secondtext);
+}
+
+.color-dots {
     display: flex;
     gap: 6px;
-    align-items: center;
-    font-size: 0.85rem;
-    color: var(--anzhiyu-secondtext);
+}
 
-    .anzhiyufont {
-      font-size: 0.9rem;
-    }
-  }
+.color-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    /* border: 1px solid rgba(0,0,0,0.05); */
 }
 
 @keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@media (width <= 768px) {
-  .portfolio-card,
-  .portfolio-card.three-column {
-    flex-direction: column;
-    width: 100%;
-
-    .card-cover {
-      width: 100%;
-      height: 200px;
-    }
-
-    .card-content {
-      width: 100%;
-      padding: 1rem;
-    }
-
-    .card-title {
-      font-size: 1.2rem;
-    }
-
-    .card-description {
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-    }
-  }
-}
+.lazy-loaded { opacity: 1; }
 </style>
