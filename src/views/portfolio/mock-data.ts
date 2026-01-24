@@ -433,6 +433,7 @@ export const mockGetPortfolios = async (params?: {
   status?: string;
   keyword?: string;
   mode?: string;
+  language?: string;
 }) => {
   await mockDelay();
 
@@ -456,6 +457,17 @@ export const mockGetPortfolios = async (params?: {
   if (params?.mode && params.mode !== "all") {
     filteredList = filteredList.filter(p => p.mode === params.mode);
   }
+
+
+
+  // Filter by language
+  if (params?.language && params.language !== "all") {
+    filteredList = filteredList.filter(p =>
+      p.technologies.some(t => t.toLowerCase() === params.language!.toLowerCase())
+    );
+  }
+
+
 
   // 按关键词搜索
   if (params?.keyword) {
@@ -492,5 +504,29 @@ export const mockGetStats = async () => {
     code: 200,
     message: "success",
     data: mockStats
+  };
+};
+
+export const mockGetPortfolioById = async (id: string) => {
+  await mockDelay();
+  const portfolio = mockPortfolios.find(p => p.id === id);
+
+  if (portfolio) {
+    // Dynamically assign mode same as list
+    const pWithMode = {
+      ...portfolio,
+      mode: portfolio.mode || (parseInt(portfolio.id) % 2 === 0 ? 'dark' : 'light') as 'light' | 'dark'
+    }
+    return {
+      code: 200,
+      message: "success",
+      data: pWithMode
+    };
+  }
+
+  return {
+    code: 404,
+    message: "Portfolio not found",
+    data: null
   };
 };

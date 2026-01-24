@@ -43,7 +43,22 @@ const pagination = reactive({
 const selectedType = ref<ProjectType | "all">("all");
 const selectedStatus = ref<ProjectStatus | "all">("all");
 const selectedMode = ref<"light" | "dark" | "all">("all");
+const selectedLanguage = ref("all");
 const searchKeyword = ref("");
+
+// Filter Options
+const languageOptions = [
+  "TypeScript",
+  "JavaScript",
+  "Python",
+  "Go",
+  "Java",
+  "Dart",
+  "Kotlin",
+  "Swift"
+];
+
+
 
 // 懒加载 Observer
 let lazyLoadObserver: IntersectionObserver | null = null;
@@ -83,7 +98,8 @@ const fetchPortfolios = async (isLoadMore = false) => {
       keyword: searchKeyword.value,
       type: selectedType.value === "all" ? undefined : selectedType.value,
       status: selectedStatus.value === "all" ? undefined : selectedStatus.value,
-      mode: selectedMode.value === "all" ? undefined : selectedMode.value
+      mode: selectedMode.value === "all" ? undefined : selectedMode.value,
+      language: selectedLanguage.value === "all" ? undefined : selectedLanguage.value
     });
     
     const data = mockData.data;
@@ -121,8 +137,20 @@ const handleModeFilter = (mode: "light" | "dark" | "all") => {
   selectedMode.value = mode;
   pagination.page = 1;
   portfolios.value = [];
+  pagination.page = 1;
+  portfolios.value = [];
   fetchPortfolios(false);
 };
+
+// Handle Language Filter
+const handleLanguageFilter = (lang: string) => {
+  selectedLanguage.value = lang;
+  pagination.page = 1;
+  portfolios.value = [];
+  fetchPortfolios(false);
+};
+
+
 
 // 处理加载更多
 const handleLoadMore = () => {
@@ -169,50 +197,79 @@ onMounted(() => {
 
         <!-- Filter Bar -->
         <div class="filter-section">
-            <div class="filter-label">Category</div>
-            <div class="filter-pills">
-                <button 
-                    class="filter-pill" 
-                    :class="{ active: selectedType === 'all' }"
-                    @click="handleTypeFilter('all')"
-                >
-                    All
-                </button>
-                <button 
-                    v-for="(label, type) in ProjectTypeLabels" 
-                    :key="type"
-                    class="filter-pill"
-                    :class="{ active: selectedType === type }"
-                    @click="handleTypeFilter(type as ProjectType)"
-                >
-                    {{ label }}
-                </button>
+            <div class="filter-row">
+                <div class="filter-label">Category</div>
+                <div class="filter-pills">
+                    <button 
+                        class="filter-pill" 
+                        :class="{ active: selectedType === 'all' }"
+                        @click="handleTypeFilter('all')"
+                    >
+                        All
+                    </button>
+                    <button 
+                        v-for="(label, type) in ProjectTypeLabels" 
+                        :key="type"
+                        class="filter-pill"
+                        :class="{ active: selectedType === type }"
+                        @click="handleTypeFilter(type as ProjectType)"
+                    >
+                        {{ label }}
+                    </button>
+                </div>
+            </div>
+
+
+
+            <!-- Language Filter -->
+            <div class="filter-row">
+                <div class="filter-label">Language</div>
+                <div class="filter-pills">
+                    <button 
+                        class="filter-pill" 
+                        :class="{ active: selectedLanguage === 'all' }"
+                        @click="handleLanguageFilter('all')"
+                    >
+                        All
+                    </button>
+                    <button 
+                        v-for="lang in languageOptions" 
+                        :key="lang"
+                        class="filter-pill"
+                        :class="{ active: selectedLanguage === lang }"
+                        @click="handleLanguageFilter(lang)"
+                    >
+                        {{ lang }}
+                    </button>
+                </div>
             </div>
 
             <!-- Mode Filter -->
-            <div class="filter-label" style="margin-top: 1.5rem;">Mode</div>
-            <div class="filter-pills">
-                <button 
-                    class="filter-pill" 
-                    :class="{ active: selectedMode === 'all' }"
-                    @click="handleModeFilter('all')"
-                >
-                    All
-                </button>
-                <button 
-                    class="filter-pill" 
-                    :class="{ active: selectedMode === 'light' }"
-                    @click="handleModeFilter('light')"
-                >
-                    Light
-                </button>
-                <button 
-                    class="filter-pill" 
-                    :class="{ active: selectedMode === 'dark' }"
-                    @click="handleModeFilter('dark')"
-                >
-                    Dark
-                </button>
+            <div class="filter-row">
+                <div class="filter-label">Mode</div>
+                <div class="filter-pills">
+                    <button 
+                        class="filter-pill" 
+                        :class="{ active: selectedMode === 'all' }"
+                        @click="handleModeFilter('all')"
+                    >
+                        All
+                    </button>
+                    <button 
+                        class="filter-pill" 
+                        :class="{ active: selectedMode === 'light' }"
+                        @click="handleModeFilter('light')"
+                    >
+                        Light
+                    </button>
+                    <button 
+                        class="filter-pill" 
+                        :class="{ active: selectedMode === 'dark' }"
+                        @click="handleModeFilter('dark')"
+                    >
+                        Dark
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -323,13 +380,33 @@ onMounted(() => {
 /* Filter Section */
 .filter-section {
     margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: var(--anzhiyu-card-bg);
+    padding: 1.5rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
 }
 
 .filter-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--anzhiyu-secondtext);
-    margin-bottom: 0.75rem;
+    min-width: 100px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--anzhiyu-fontcolor);
+    margin-bottom: 0;
+    opacity: 0.8;
 }
 
 .filter-pills {
@@ -360,6 +437,8 @@ onMounted(() => {
         box-shadow: 0 4px 10px rgba(var(--anzhiyu-theme-rgb), 0.3);
     }
 }
+
+
 
 /* Card Grid Layout - 3 Columns Fixed */
 .card-grid {

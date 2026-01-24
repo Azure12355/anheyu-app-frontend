@@ -47,10 +47,16 @@ const openLink = (url?: string) => {
   }
 };
 
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
 // 处理查看详情
 const viewDetails = () => {
-  // TODO: Implement details view
-  console.log("View details for", props.portfolio.id);
+  router.push({
+    name: "PortfolioDetail",
+    params: { id: props.portfolio.id }
+  });
 };
 </script>
 
