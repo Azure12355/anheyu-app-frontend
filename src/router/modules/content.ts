@@ -46,6 +46,26 @@ export default [
           title: "相册管理",
           roles: ["1"]
         }
+      },
+      {
+        path: "/admin/portfolio-management",
+        name: "PortfolioManagement",
+        component: () => import("@/views/system/portfolio-management/index.vue"),
+        meta: {
+          icon: "material-symbols:work-outline",
+          title: "作品管理",
+          roles: ["1"]
+        }
+      },
+      {
+        path: "/admin/portfolio/edit/:id",
+        name: "PortfolioEdit",
+        component: () => import("@/views/system/portfolio-management/edit.vue"),
+        meta: {
+          title: "编辑作品",
+          roles: ["1"],
+          showLink: false
+        }
       }
     ]
   }

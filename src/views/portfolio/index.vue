@@ -185,13 +185,17 @@ onMounted(() => {
 
     <!-- Gallery Section -->
     <div class="portfolio-container">
+      
+      <!-- Sticky Sidebar -->
+      <aside class="portfolio-sidebar">
         <!-- Header -->
         <div class="gallery-header">
             <h2 class="gallery-title">
-                <span class="count">{{ pagination.total }}</span> Website Demos Gallery
+                Creative <br> Archive 
+                <span class="count">{{ pagination.total }}</span>
             </h2>
             <p class="gallery-desc">
-                Browse real-world website demos built with UI UX Pro Max. Click to view live details.
+                An evolving repository of apps, experimental sites, and digital crafts.
             </p>
         </div>
 
@@ -219,8 +223,6 @@ onMounted(() => {
                 </div>
             </div>
 
-
-
             <!-- Language Filter -->
             <div class="filter-row">
                 <div class="filter-label">Language</div>
@@ -246,7 +248,7 @@ onMounted(() => {
 
             <!-- Mode Filter -->
             <div class="filter-row">
-                <div class="filter-label">Mode</div>
+                <div class="filter-label">Layout Mode</div>
                 <div class="filter-pills">
                     <button 
                         class="filter-pill" 
@@ -272,72 +274,127 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+      </aside>
 
-      <!-- 作品列表 -->
-      <div class="portfolio-list">
-        <!-- 骨架屏 (首次加载) -->
-        <template v-if="isLoading && portfolios.length === 0">
-          <PortfolioSkeleton
-            v-for="i in 6"
-            :key="'skeleton-' + i"
-            :is-double-column="true"
+      <!-- Main Content Area -->
+      <main class="portfolio-main">
+        <!-- 作品列表 -->
+        <div class="portfolio-list">
+          <!-- 骨架屏 (首次加载) -->
+          <template v-if="isLoading && portfolios.length === 0">
+            <div class="card-grid">
+              <PortfolioSkeleton
+                v-for="i in 6"
+                :key="'skeleton-' + i"
+                :is-double-column="true"
+              />
+            </div>
+          </template>
+
+          <!-- 作品卡片 -->
+          <template v-else-if="portfolios.length > 0">
+            <div class="card-grid">
+              <PortfolioCard
+                  v-for="(portfolio, index) in portfolios"
+                  :key="portfolio.id"
+                  :portfolio="portfolio"
+                  :animation-order="index % 12" 
+              />
+            </div>
+          </template>
+
+          <!-- 空状态 -->
+          <el-empty
+            v-if="!isLoading && portfolios.length === 0"
+            description="暂无作品"
           />
-        </template>
+        </div>
 
-        <!-- 作品卡片 -->
-        <template v-else-if="portfolios.length > 0">
-          <div class="card-grid">
-            <PortfolioCard
-                v-for="(portfolio, index) in portfolios"
-                :key="portfolio.id"
-                :portfolio="portfolio"
-                :animation-order="index % 12" 
-            />
-          </div>
-        </template>
-
-        <!-- 空状态 -->
-        <el-empty
-          v-if="!isLoading && portfolios.length === 0"
-          description="暂无作品"
-        />
-      </div>
-
-      <!-- Load More / Footer Area -->
-      <div v-if="portfolios.length > 0" class="load-more-container">
-          <!-- Load More Button -->
-          <button 
-            v-if="hasMore" 
-            class="btn-load-more" 
-            :disabled="isLoading"
-            @click="handleLoadMore"
-          >
-            {{ isLoading ? 'Loading...' : 'Load More' }}
-            <i v-if="!isLoading" class="anzhiyufont anzhiyu-icon-angle-down"></i>
-          </button>
-          
-          <!-- Showing Count Text -->
-          <div class="showing-text">
-              Showing {{ portfolios.length }} of {{ pagination.total }} demos
-          </div>
-          
-          <!-- Decorative Stats (Static for visuals as per image) -->
-          <div class="footer-stats">
-              {{ pagination.total }} demos available • 
-              <span class="stat-highlight">20 categories</span> • 
-              <span class="stat-highlight-orange">26 light</span> • 
-              <span class="stat-highlight-green">13 dark</span>
-          </div>
-      </div>
+        <!-- Load More / Footer Area -->
+        <div v-if="portfolios.length > 0" class="load-more-container">
+            <!-- Load More Button -->
+            <button 
+              v-if="hasMore" 
+              class="btn-load-more" 
+              :disabled="isLoading"
+              @click="handleLoadMore"
+            >
+              {{ isLoading ? 'Loading...' : 'Load More' }}
+              <i v-if="!isLoading" class="anzhiyufont anzhiyu-icon-angle-down"></i>
+            </button>
+            
+            <div class="footer-stats">
+                <span class="stat-highlight">20 categories</span> • 
+                <span class="stat-highlight-orange">26 light</span> • 
+                <span class="stat-highlight-green">13 dark</span>
+            </div>
+        </div>
+      </main>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
 /* ... (Existing styles unchanged) ... */
 .portfolio-page {
   width: 100%;
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
+
+  /* Global elegant halo gradient */
+  &::before,
+  &::after {
+    content: "";
+    position: fixed;
+    width: 60vw;
+    height: 60vh;
+    min-width: 600px;
+    min-height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.18;
+    animation: breathingHalo 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
+  }
+
+  &::before {
+    top: -15vh;
+    left: -15vw;
+    background: var(--anzhiyu-theme);
+    animation-delay: 0s;
+  }
+
+  &::after {
+    bottom: -15vh;
+    right: -15vw;
+    background: #4facfe; /* Elegant blue to complement */
+    animation-delay: -10s;
+    animation-direction: alternate-reverse;
+  }
+}
+
+@keyframes breathingHalo {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.15;
+  }
+  33% {
+    transform: translate(5vw, 5vh) scale(1.1);
+    opacity: 0.2;
+  }
+  66% {
+    transform: translate(-5vw, 2vh) scale(0.95);
+    opacity: 0.18;
+  }
+  100% {
+    transform: translate(2vw, -5vh) scale(1.05);
+    opacity: 0.15;
+  }
 }
 
 .portfolio-hero-wrapper {
@@ -346,105 +403,141 @@ onMounted(() => {
   margin-bottom: 0; 
 }
 
+/* --- Modern Sidebar Layout --- */
 .portfolio-container {
-  width: 100%;
-  max-width: 1400px;
-  padding: 4rem 1.5rem;
-  margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 4rem;
+    width: 100%;
+    max-width: 1440px;
+    padding: 6rem 2rem;
+    margin: 0 auto;
+}
+
+.portfolio-sidebar {
+    position: sticky;
+    top: 100px;
+    width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    z-index: 10;
+}
+
+.portfolio-main {
+    flex: 1;
+    min-width: 0;
 }
 
 /* Gallery Header */
 .gallery-header {
-    text-align: center;
-    margin-bottom: 3rem;
+    text-align: left;
+    margin-bottom: 0;
+    padding-top: 0;
     
     .gallery-title {
-        font-size: 2.5rem;
-        font-weight: 800;
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        letter-spacing: -1px;
         color: var(--anzhiyu-fontcolor);
         margin-bottom: 1rem;
+        line-height: 1.1;
         
         .count {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.2rem;
+            vertical-align: super;
+            opacity: 0.5;
+            margin-left: 0.2rem;
             color: var(--anzhiyu-theme);
+            font-style: normal;
         }
     }
     
     .gallery-desc {
-        font-size: 1.1rem;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 400;
         color: var(--anzhiyu-secondtext);
-        max-width: 600px;
-        margin: 0 auto;
+        line-height: 1.7;
+        opacity: 0.8;
     }
 }
 
 /* Filter Section */
 .filter-section {
-    margin-bottom: 3rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    background: var(--anzhiyu-card-bg);
-    padding: 1.5rem;
-    border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    gap: 2.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
 }
 
 .filter-row {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    
-    &:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
 }
 
 .filter-label {
-    min-width: 100px;
-    font-size: 0.95rem;
-    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-style: italic;
     color: var(--anzhiyu-fontcolor);
     margin-bottom: 0;
-    opacity: 0.8;
+    opacity: 0.9;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+    padding-bottom: 0.5rem;
+    width: 100%;
 }
 
 .filter-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 0.8rem;
 }
 
 .filter-pill {
-    padding: 8px 16px;
-    border-radius: 999px; /* Pill shape */
-    border: none;
-    font-size: 0.9rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
-    background: var(--anzhiyu-secondbg); /* Gray-ish for inactive */
-    color: var(--anzhiyu-fontcolor);
-    transition: all 0.3s;
+    background: transparent;
+    color: var(--anzhiyu-secondtext);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    &::after { display: none; }
     
     &:hover {
-        background: var(--anzhiyu-theme-op);
+        background: rgba(var(--anzhiyu-theme-rgb), 0.05);
         color: var(--anzhiyu-theme);
+        border-color: var(--anzhiyu-theme);
+        transform: translateY(-2px);
     }
     
     &.active {
         background: var(--anzhiyu-theme);
         color: white;
-        box-shadow: 0 4px 10px rgba(var(--anzhiyu-theme-rgb), 0.3);
+        border-color: var(--anzhiyu-theme);
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(var(--anzhiyu-theme-rgb), 0.3);
     }
 }
 
 
 
-/* Card Grid Layout - 3 Columns Fixed */
+/* --- Flexible Grid --- */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Force 3 columns */
-    gap: 2rem; /* Spacing between cards */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
 }
 
 /* Load More Section */
@@ -452,7 +545,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 4rem 0 2rem;
+    padding: 5rem 0 3rem;
     gap: 1.5rem;
 }
 
@@ -460,41 +553,37 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 32px;
-    background: var(--anzhiyu-theme);
-    color: white;
+    padding: 14px 36px;
+    background: transparent;
+    color: var(--anzhiyu-fontcolor);
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 1rem;
     font-weight: 600;
-    border-radius: 12px;
-    border: none;
+    border-radius: 100px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(var(--anzhiyu-theme-rgb), 0.3);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(10px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     
     &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(var(--anzhiyu-theme-rgb), 0.4);
+        background: var(--anzhiyu-theme);
+        color: white;
+        border-color: var(--anzhiyu-theme);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(var(--anzhiyu-theme-rgb), 0.3);
     }
     
     &:disabled {
-        opacity: 0.7;
+        opacity: 0.5;
         cursor: not-allowed;
     }
-    
-    .anzhiyufont {
-        font-size: 0.9rem;
-    }
-}
-
-.showing-text {
-    font-size: 0.95rem;
-    color: var(--anzhiyu-secondtext);
 }
 
 .footer-stats {
-    font-size: 0.9rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
     color: var(--anzhiyu-secondtext);
-    opacity: 0.8;
+    opacity: 0.7;
     margin-top: 1rem;
     
     .stat-highlight { color: var(--anzhiyu-theme); }
@@ -503,25 +592,39 @@ onMounted(() => {
 }
 
 :deep(.el-empty) {
-  padding: 3rem 0;
+  padding: 5rem 0;
 }
 
+/* Responsive Overrides */
 @media (max-width: 1024px) {
-    .card-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .portfolio-container {
+        flex-direction: column;
+        gap: 3rem;
+    }
+    
+    .portfolio-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+    }
+
+    .filter-pills {
+        gap: 0.5rem;
     }
 }
 
 @media (max-width: 768px) {
   .portfolio-container {
-    padding: 2rem 1rem;
+    padding: 3rem 1.5rem;
   }
   
-  .gallery-title { font-size: 1.8rem; }
-
   .card-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .gallery-header .gallery-title {
+      font-size: 2.8rem;
   }
 }
 </style>

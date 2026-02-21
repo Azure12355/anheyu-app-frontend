@@ -49,3 +49,68 @@ export const getPortfolioStats = () => {
     baseUrlApi("portfolios/stats")
   );
 };
+
+/**
+ * 创建作品
+ */
+export const createPortfolio = (data: Partial<Portfolio>) => {
+  return http.request<BaseResponse<Portfolio>>(
+    "post",
+    baseUrlApi("portfolios"),
+    { data }
+  );
+};
+
+/**
+ * 更新作品
+ */
+export const updatePortfolio = (id: string, data: Partial<Portfolio>) => {
+  return http.request<BaseResponse<Portfolio>>(
+    "put",
+    baseUrlApi(`portfolios/${id}`),
+    { data }
+  );
+};
+
+/**
+ * 删除作品
+ */
+export const deletePortfolio = (id: string) => {
+  return http.request<BaseResponse<void>>(
+    "delete",
+    baseUrlApi(`portfolios/${id}`)
+  );
+};
+
+/**
+ * 批量删除作品
+ */
+export const batchDeletePortfolios = (ids: string[]) => {
+  return http.request<BaseResponse<{ success_count: number; failed_count: number }>>(
+    "post",
+    baseUrlApi("portfolios/batch-delete"),
+    { data: { ids } }
+  );
+};
+
+/**
+ * 更新作品排序
+ */
+export const updatePortfolioSortOrder = (data: Array<{ id: string; sort_order: number }>) => {
+  return http.request<BaseResponse<void>>(
+    "post",
+    baseUrlApi("portfolios/sort"),
+    { data }
+  );
+};
+
+/**
+ * 切换作品精选状态
+ */
+export const togglePortfolioFeatured = (id: string, featured: boolean) => {
+  return http.request<BaseResponse<Portfolio>>(
+    "put",
+    baseUrlApi(`portfolios/${id}/featured`),
+    { data: { featured } }
+  );
+};

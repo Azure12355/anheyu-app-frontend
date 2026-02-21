@@ -84,9 +84,32 @@ const handleSearchInput = () => {
   debouncedSearch(searchKeyword.value);
 };
 
-// 查看全部
-const viewAll = () => {
-  router.push({ path: "/portfolio" });
+// 查看全部/滚动到长廊
+const scrollToGallery = () => {
+    const galleryElement = document.querySelector('.portfolio-container');
+    if (galleryElement) {
+        galleryElement.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        router.push({ path: "/portfolio" });
+    }
+};
+
+// 灵感探索 (随机一个关键词并自动搜索)
+const generateInspiration = () => {
+    const keywords = ['Dashboard', 'E-commerce', 'Crypto', 'AI', 'Analytics', 'Social', 'Healthcare', 'Fintech', 'SaaS'];
+    const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
+    
+    // 模拟一种被打字机打出来的效果
+    searchKeyword.value = '';
+    let i = 0;
+    const typeWriter = setInterval(() => {
+        searchKeyword.value += randomKeyword.charAt(i);
+        i++;
+        if (i === randomKeyword.length) {
+            clearInterval(typeWriter);
+            handleSearchInput();
+        }
+    }, 80);
 };
 
 // 动画初始化
@@ -180,6 +203,40 @@ onUnmounted(() => {
         <div class="bg-overlay"></div>
     </div>
 
+    <!-- Butterflies Effect -->
+    <div class="butterflies-container">
+      <div class="butterfly-wrap b-wrap-1">
+        <div class="butterfly">
+          <div class="wing wing-left"></div>
+          <div class="wing wing-right"></div>
+        </div>
+      </div>
+      <div class="butterfly-wrap b-wrap-2">
+        <div class="butterfly">
+          <div class="wing wing-left"></div>
+          <div class="wing wing-right"></div>
+        </div>
+      </div>
+      <div class="butterfly-wrap b-wrap-3">
+        <div class="butterfly">
+          <div class="wing wing-left"></div>
+          <div class="wing wing-right"></div>
+        </div>
+      </div>
+      <div class="butterfly-wrap b-wrap-4">
+        <div class="butterfly">
+          <div class="wing wing-left"></div>
+          <div class="wing wing-right"></div>
+        </div>
+      </div>
+      <div class="butterfly-wrap b-wrap-5">
+        <div class="butterfly">
+          <div class="wing wing-left"></div>
+          <div class="wing wing-right"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="hero-container">
       <!-- 1. Tech Stack Chips (Redesigned) -->
       <div class="tech-stacks">
@@ -206,9 +263,8 @@ onUnmounted(() => {
 
       <!-- 3. Subtitle Description -->
       <p class="hero-description">
-        Searchable database of UI styles, color palettes, font pairings, 
-        chart types, and UX guidelines. Build beautiful interfaces with 
-        AI-powered design recommendations.
+        A curated collection of my creative explorations, side projects, and digital experiments. 
+        Where whimsical ideas meet deliberate design and code. Feel free to explore the gallery below.
       </p>
 
       <!-- 4. Command Line Search -->
@@ -231,11 +287,11 @@ onUnmounted(() => {
 
       <!-- 5. Action Buttons -->
       <div class="hero-actions">
-        <button class="btn-primary" @click="viewAll">
-           How it Works
+        <button class="btn-primary" @click="generateInspiration">
+           <IconifyIconOnline icon="ri:magic-line" class="btn-icon" /> 灵感探索
         </button>
-        <button class="btn-secondary">
-           View Demos
+        <button class="btn-secondary" @click="scrollToGallery">
+           探索作品集长廊 <IconifyIconOnline icon="ri:arrow-right-line" class="btn-icon" />
         </button>
       </div>
 
@@ -323,6 +379,155 @@ onUnmounted(() => {
     inset: 0;
     background: radial-gradient(circle at center, transparent 0%, var(--anzhiyu-background) 100%);
     backdrop-filter: blur(40px); 
+}
+
+/* --- Blue/Purple Butterflies Effect --- */
+.butterflies-container {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    overflow: hidden;
+    perspective: 1000px;
+}
+
+.butterfly-wrap {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.5));
+}
+
+.butterfly {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(55deg) rotateY(15deg) rotateZ(10deg);
+}
+
+.wing {
+    position: absolute;
+    top: 5px;
+    width: 28px;
+    height: 38px;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.85) 0%, rgba(56, 189, 248, 0.85) 100%);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.6);
+    border-radius: 50% 50% 20% 80% / 80% 80% 20% 20%;
+    opacity: 0.9;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+.wing::after {
+    content: '';
+    position: absolute;
+    bottom: -16px;
+    width: 16px;
+    height: 24px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.75) 0%, rgba(14, 165, 233, 0.75) 100%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.wing-left {
+    left: 2px;
+    transform-origin: right center;
+    animation: flap-l 0.15s ease-in-out infinite alternate;
+}
+.wing-left::after {
+    right: 0;
+    transform-origin: top right;
+    transform: rotate(15deg);
+}
+
+.wing-right {
+    left: 30px;
+    border-radius: 50% 50% 80% 20% / 80% 80% 20% 20%;
+    transform-origin: left center;
+    animation: flap-r 0.15s ease-in-out infinite alternate;
+}
+.wing-right::after {
+    left: 0;
+    transform-origin: top left;
+    transform: rotate(-15deg);
+}
+
+@keyframes flap-l {
+    0% { transform: rotateY(0deg) rotateX(0deg); }
+    100% { transform: rotateY(65deg) rotateX(5deg); }
+}
+@keyframes flap-r {
+    0% { transform: rotateY(0deg) rotateX(0deg); }
+    100% { transform: rotateY(-65deg) rotateX(5deg); }
+}
+
+/* Flight Paths */
+.b-wrap-1 {
+    bottom: 20%;
+    left: 10%;
+    animation: flight1 22s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.b-wrap-2 {
+    top: 40%;
+    right: 15%;
+    animation: flight2 28s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: -7s;
+}
+.b-wrap-3 {
+    top: 15%;
+    left: 30%;
+    animation: flight3 24s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: -14s;
+}
+.b-wrap-4 {
+    top: 60%;
+    left: 20%;
+    animation: flight4 26s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: -3s;
+}
+.b-wrap-5 {
+    bottom: 30%;
+    right: 25%;
+    animation: flight5 20s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: -11s;
+}
+
+@keyframes flight1 {
+    0% { transform: translate(0, 0) scale(0.65) rotate(0deg); }
+    25% { transform: translate(30vw, -45vh) scale(0.85) rotate(55deg); }
+    50% { transform: translate(65vw, -10vh) scale(0.55) rotate(110deg); }
+    75% { transform: translate(35vw, 15vh) scale(0.75) rotate(-35deg); }
+    100% { transform: translate(0, 0) scale(0.65) rotate(0deg); }
+}
+
+@keyframes flight2 {
+    0% { transform: translate(0, 0) scale(0.55) rotate(0deg); }
+    33% { transform: translate(-35vw, -35vh) scale(0.75) rotate(-55deg); }
+    66% { transform: translate(-55vw, 25vh) scale(0.45) rotate(65deg); }
+    100% { transform: translate(0, 0) scale(0.55) rotate(0deg); }
+}
+
+@keyframes flight3 {
+    0% { transform: translate(0, 0) scale(0.45) rotate(20deg); }
+    33% { transform: translate(25vw, 35vh) scale(0.65) rotate(75deg); }
+    66% { transform: translate(-25vw, 25vh) scale(0.5) rotate(135deg); }
+    100% { transform: translate(0, 0) scale(0.45) rotate(380deg); }
+}
+
+@keyframes flight4 {
+    0% { transform: translate(0, 0) scale(0.6) rotate(-10deg); }
+    33% { transform: translate(45vw, -20vh) scale(0.8) rotate(45deg); }
+    66% { transform: translate(15vw, -45vh) scale(0.5) rotate(-25deg); }
+    100% { transform: translate(0, 0) scale(0.6) rotate(-10deg); }
+}
+
+@keyframes flight5 {
+    0% { transform: translate(0, 0) scale(0.7) rotate(15deg); }
+    33% { transform: translate(-25vw, -40vh) scale(0.9) rotate(-75deg); }
+    66% { transform: translate(-45vw, 15vh) scale(0.6) rotate(35deg); }
+    100% { transform: translate(0, 0) scale(0.7) rotate(15deg); }
 }
 
 /* --- Content Container --- */
@@ -443,6 +648,7 @@ onUnmounted(() => {
     );
     background-size: 200% auto;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: text-flow 6s linear infinite;
 }
@@ -524,36 +730,66 @@ onUnmounted(() => {
 }
 
 .btn-primary {
-    padding: 14px 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
     background: var(--anzhiyu-theme);
     color: white;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 1.1rem;
     font-weight: 600;
-    border-radius: 12px;
+    border-radius: 999px;
     border: none;
     cursor: pointer;
-    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(var(--anzhiyu-theme-rgb), 0.3);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+    .btn-icon {
+        font-size: 1.2rem;
+        transition: transform 0.4s ease;
+    }
 
     &:hover {
-        transform: translateY(-2px) scale(1.02);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(var(--anzhiyu-theme-rgb), 0.45);
+        
+        .btn-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
     }
 }
 
 .btn-secondary {
-    padding: 14px 36px;
-    background: var(--anzhiyu-card-bg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: transparent;
     color: var(--anzhiyu-fontcolor);
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 1.1rem;
     font-weight: 600;
-    border-radius: 12px;
-    border: 2px solid var(--anzhiyu-border-color, #eee);
+    border-radius: 999px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
     cursor: pointer;
-    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    .btn-icon {
+        font-size: 1.2rem;
+        transition: transform 0.4s ease;
+    }
     
     &:hover {
+        background: rgba(var(--anzhiyu-theme-rgb), 0.05);
         border-color: var(--anzhiyu-theme);
         color: var(--anzhiyu-theme);
-        transform: translateY(-2px);
+        transform: translateY(-4px);
+        
+        .btn-icon {
+            transform: translateX(4px);
+        }
     }
 }
 

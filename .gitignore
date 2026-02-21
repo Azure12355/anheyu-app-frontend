@@ -21,3 +21,7 @@ tests/**/coverage/
 *.sln
 tsconfig.tsbuildinfo
 dev-dist
+.claude/
+CLAUDE.md
+.idea/
+.serena/

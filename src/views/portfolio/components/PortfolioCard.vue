@@ -58,14 +58,82 @@ const viewDetails = () => {
     params: { id: props.portfolio.id }
   });
 };
+
+/* --- 3D Tilt Interaction --- */
+import { ref } from "vue";
+
+const cardRef = ref<HTMLElement | null>(null);
+const tiltStyle = ref({});
+const cursorStyle = ref({ opacity: 0, left: '0px', top: '0px' });
+const isHovering = ref(false);
+
+const handleMouseMove = (e: MouseEvent) => {
+  if (!cardRef.value) return;
+  const rect = cardRef.value.getBoundingClientRect();
+  const width = rect.width;
+  const height = rect.height;
+  
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  // Calculate percentage from center (-0.5 to 0.5)
+  const xPct = (mouseX / width) - 0.5;
+  const yPct = (mouseY / height) - 0.5;
+  
+  // Magic numbers for rotation intensity
+  const rotateY = xPct * 12; // Max 12 deg tilt
+  const rotateX = yPct * -12; 
+  
+  tiltStyle.value = {
+    transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`,
+    transition: 'none',
+  };
+  
+  cursorStyle.value = {
+      opacity: 1,
+      left: `${mouseX}px`,
+      top: `${mouseY}px`
+  };
+};
+
+const handleMouseEnter = () => {
+    isHovering.value = true;
+};
+
+const handleMouseLeave = () => {
+  isHovering.value = false;
+  tiltStyle.value = {
+    transform: 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
+    transition: 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
+  };
+  cursorStyle.value = {
+      opacity: 0,
+      left: cursorStyle.value.left,
+      top: cursorStyle.value.top
+  };
+};
 </script>
 
 <template>
   <div
-    class="portfolio-card"
+    class="portfolio-card-wrapper"
     :style="{ '--animation-order': animationOrder }"
   >
-    <!-- 图片区域 -->
+    <div
+      ref="cardRef"
+      class="portfolio-card"
+      :class="{ 'is-hovering': isHovering }"
+      :style="tiltStyle"
+      @mousemove="handleMouseMove"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+    >
+      <!-- Custom Magic Cursor -->
+      <div class="custom-card-cursor" :style="cursorStyle">
+         <IconifyIconOnline icon="ri:magic-line" />
+      </div>
+
+      <!-- 图片区域 -->
     <div class="card-cover-wrapper">
       <div class="card-cover">
          <img
@@ -129,39 +197,57 @@ const viewDetails = () => {
             ></span>
         </div>
       </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.portfolio-card {
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+.portfolio-card-wrapper {
   position: relative;
-  display: flex;
-  flex-direction: column;
   width: 100%;
-  border-radius: 24px;
-  background: var(--anzhiyu-card-bg);
-  border: 1px solid var(--anzhiyu-border-color, #eee); /* Delicate border */
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  perspective: 1200px;
   
   /* Initial State for Animation */
   opacity: 0;
   animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   animation-delay: calc(var(--animation-order, 0) * 0.1s);
+}
 
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px -5px rgba(0,0,0,0.1);
-    border-color: transparent;
+.portfolio-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  background: var(--anzhiyu-card-bg);
+  border: 1px solid rgba(128, 128, 128, 0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  cursor: none; /* Hide default cursor */
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s;
+
+  &.is-hovering {
+    box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.12);
+    border-color: rgba(var(--anzhiyu-theme-rgb), 0.2);
+    z-index: 10;
     
     .cover-image {
-        transform: scale(1.05);
+        transform: scale(1.1) translateZ(20px);
     }
-    
+
     .card-title {
         color: var(--anzhiyu-theme);
+        transform: translateZ(30px);
+    }
+
+    .card-description {
+        transform: translateZ(20px);
     }
 
     .card-overlay {
@@ -170,10 +256,34 @@ const viewDetails = () => {
     }
 
     .overlay-btn {
-        transform: translateY(0);
+        transform: translateY(0) translateZ(40px);
         opacity: 1;
+        cursor: pointer; /* Ensure pointer shows inside the customized cursor space for buttons */
+    }
+    
+    .category-tag {
+        transform: translateZ(25px);
     }
   }
+}
+
+.custom-card-cursor {
+    position: absolute;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: rgba(var(--anzhiyu-theme-rgb), 0.9);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    pointer-events: none;
+    z-index: 999;
+    transform: translate(-50%, -50%) translateZ(50px);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 8px 25px rgba(var(--anzhiyu-theme-rgb), 0.4);
+    transition: opacity 0.3s ease;
 }
 
 /* Image Section */
@@ -194,7 +304,8 @@ const viewDetails = () => {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s ease;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
     
     &.lazy-loading {
         opacity: 0;
@@ -239,8 +350,9 @@ const viewDetails = () => {
     align-items: center;
     gap: 8px;
     padding: 10px 22px;
-    border-radius: 99px;
+    border-radius: 100px;
     border: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
@@ -310,15 +422,17 @@ const viewDetails = () => {
 
 .category-tag {
     display: inline-block;
-    padding: 6px 12px;
-    border-radius: 8px;
-    background: var(--anzhiyu-theme-op); 
+    padding: 4px 14px;
+    border-radius: 100px;
+    background: transparent;
+    border: 1px solid var(--anzhiyu-theme); 
     color: var(--anzhiyu-theme);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
     
     &:hover {
         background: var(--anzhiyu-theme);
@@ -327,28 +441,37 @@ const viewDetails = () => {
 }
 
 .card-title {
-    font-size: 1.25rem;
-    font-weight: 800;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
     color: var(--anzhiyu-fontcolor);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    transition: color 0.3s ease;
+    transition: color 0.4s ease, transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
 }
 
 .card-description {
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.95rem;
     color: var(--anzhiyu-secondtext);
-    line-height: 1.6;
+    line-height: 1.7;
     margin-bottom: 24px;
     flex-grow: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    opacity: 0.85;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
 }
 
 /* Footer Colors */
@@ -359,8 +482,10 @@ const viewDetails = () => {
 }
 
 .footer-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 500;
+    font-style: italic;
     color: var(--anzhiyu-secondtext);
 }
 
