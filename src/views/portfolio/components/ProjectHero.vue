@@ -93,7 +93,7 @@ onUnmounted(() => {
         <div class="back-btn-wrapper">
              <button class="back-btn" @click="emit('back')">
                 <IconifyIconOnline icon="ri:arrow-left-line" class="icon" /> 
-                <span class="text">Back</span>
+                <span class="text">返回</span>
             </button>
         </div>
 
@@ -117,7 +117,7 @@ onUnmounted(() => {
                         @click="openLink(portfolio.demo_url)"
                     >
                         <IconifyIconOnline icon="ri:global-line" class="btn-icon" /> 
-                        <span>Visit Demo</span>
+                        <span>访问项目</span>
                     </button>
                     <button 
                             v-if="portfolio.github_url"
@@ -356,76 +356,127 @@ onUnmounted(() => {
     }
 }
 
+/* --- Typography: Artistic Title --- */
 .project-title {
-    font-size: 3rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 4.5rem; /* Larger for impact */
     font-weight: 800;
     color: white;
-    margin: 0 0 32px 0;
-    line-height: 1.2;
-    text-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    letter-spacing: -0.02em;
+    margin: 0 0 36px 0;
+    line-height: 1.1;
+    text-shadow: 0 20px 40px rgba(0,0,0,0.4); /* Deeper shadow */
+    letter-spacing: -1px;
+    position: relative;
+    z-index: 2;
+    
+    /* Subtle gradient to the text */
+    background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     
     @media (min-width: 1200px) {
-        font-size: 3.5rem;
+        font-size: 5rem;
     }
     
     @media (max-width: 768px) {
-        font-size: 2rem;
+        font-size: 2.5rem;
         margin-bottom: 24px;
+        letter-spacing: -0.5px;
     }
 }
 
+/* --- Action Buttons: Elevated Design --- */
 .action-buttons {
     display: flex;
     justify-content: center;
-    gap: 16px;
+    gap: 20px;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
 }
 
 .action-btn {
-    height: 44px;
-    padding: 0 24px;
-    border-radius: 99px; /* Pill shape */
+    height: 50px; /* Slightly taller */
+    padding: 0 32px;
+    border-radius: 14px; /* Move from pill to rounded rectangle for modern edge */
     border: 1px solid transparent;
-    font-size: 0.95rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
     font-weight: 600;
+    letter-spacing: 0.5px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     
     .btn-icon {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
+        transition: transform 0.4s ease;
+    }
+    
+    /* Glossy sweep effect on hover */
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+        );
+        transform: skewX(-15deg);
+        transition: left 0.6s ease;
+    }
+
+    &:hover::after {
+        left: 100%;
     }
     
     &.primary {
-        background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+        background: white;
         color: var(--anzhiyu-theme);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,1);
+        box-shadow: 
+            0 10px 30px rgba(0,0,0,0.2),
+            inset 0 -3px 0 rgba(0,0,0,0.1); /* Subtle 3D lift */
         
         &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,1);
+            transform: translateY(-4px);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.3),
+                inset 0 -3px 0 rgba(0,0,0,0.1);
+                
+            .btn-icon {
+                transform: rotate(-10deg) scale(1.1); /* Playful icon interaction */
+            }
         }
 
         &:active {
             transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
     }
     
     &.secondary {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         color: white;
-        border-color: rgba(255,255,255,0.3);
+        border: 1px solid rgba(255,255,255,0.2);
         
         &:hover {
-            background: rgba(255,255,255,0.2);
-            border-color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }
 
         &:active {

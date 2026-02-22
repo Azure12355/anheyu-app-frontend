@@ -50,7 +50,7 @@ onMounted(() => {
   <div class="project-detail-page">
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-container">
-      <div class="loader">Loading...</div>
+      <div class="loader">加载中...</div>
     </div>
 
     <template v-else-if="portfolio">
@@ -69,6 +69,22 @@ onMounted(() => {
                       <img :src="portfolio.cover_url" :alt="portfolio.title" class="main-image" />
                       <div class="image-reflection"></div>
                   </div>
+                  
+                  <!-- Left Meta Card -->
+                  <div class="left-meta-card" v-if="portfolio.role || portfolio.duration || portfolio.client">
+                      <div class="meta-item" v-if="portfolio.role">
+                          <span class="meta-label">担任角色</span>
+                          <span class="meta-value">{{ portfolio.role }}</span>
+                      </div>
+                      <div class="meta-item" v-if="portfolio.duration">
+                          <span class="meta-label">项目周期</span>
+                          <span class="meta-value">{{ portfolio.duration }}</span>
+                      </div>
+                      <div class="meta-item" v-if="portfolio.client">
+                          <span class="meta-label">所属客户</span>
+                          <span class="meta-value">{{ portfolio.client }}</span>
+                      </div>
+                  </div>
               </div>
 
               <!-- Right: Details Component -->
@@ -80,8 +96,8 @@ onMounted(() => {
     </template>
     
     <div v-else class="not-found">
-        <h2>Project not found</h2>
-        <button @click="goBack">Go Back</button>
+        <h2>未找到该作品</h2>
+        <button @click="goBack">返回上一页</button>
     </div>
   </div>
 </template>
@@ -117,41 +133,167 @@ onMounted(() => {
 /* Main Content */
 .main-content {
     position: relative;
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 0 20px 80px;
+    padding: 0 40px 120px;
     z-index: 5;
+    
+    @media (max-width: 768px) {
+        padding: 0 20px 80px;
+    }
 }
 
 .content-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
+    grid-template-columns: 4fr 7fr;
+    gap: 80px;
+    align-items: start;
     
     @media (max-width: 1024px) {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 60px;
     }
 }
 
-/* Showcase Image */
+/* Showcase Image Column */
+.showcase-column {
+    position: sticky;
+    top: 100px;
+    
+    @media (max-width: 1024px) {
+        position: relative;
+        top: 0;
+    }
+}
+
 .main-image-wrapper {
     position: relative;
-    border-radius: 20px;
+    border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    border: 8px solid rgba(255,255,255,0.5); /* Glass border */
-    background: rgba(255,255,255,0.1);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+    border: 1px solid rgba(128,128,128,0.2); 
+    background: var(--anzhiyu-card-bg);
+    margin-bottom: 2rem;
     
     .main-image {
         width: 100%;
         display: block;
-        transition: transform 0.5s;
+        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         
         &:hover {
-            transform: scale(1.02);
+            transform: scale(1.03);
         }
     }
+}
+
+/* Left Meta Card */
+.left-meta-card {
+    display: flex;
+    flex-direction: column; /* Stack vertically for a sleeker look */
+    gap: 2rem;
+    padding: 2.5rem;
+    
+    @media (max-width: 768px) {
+        flex-direction: row; /* Horizontal on mobile for compactness */
+        flex-wrap: wrap;
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+    
+    /* Extreme Glassmorphism */
+    background: linear-gradient(
+        135deg, 
+        rgba(255, 255, 255, 0.05) 0%, 
+        rgba(255, 255, 255, 0.01) 100%
+    );
+    border-radius: 20px;
+    border: 1px solid rgba(128,128,128,0.1);
+    box-shadow: 
+        0 15px 35px rgba(0,0,0,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    /* Reveal Animation setup */
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+
+    /* Animated light sweep effect */
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent
+        );
+        transform: skewX(-20deg);
+        transition: 0.7s;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 
+            0 25px 45px rgba(0,0,0,0.08),
+            inset 0 1px 0 rgba(255,255,255,0.2);
+        border-color: rgba(var(--anzhiyu-theme-rgb), 0.3);
+        
+        &::after {
+            left: 200%;
+        }
+    }
+}
+
+[data-theme="dark"] .left-meta-card {
+    background: linear-gradient(
+        135deg, 
+        rgba(255, 255, 255, 0.03) 0%, 
+        rgba(255, 255, 255, 0.005) 100%
+    );
+    box-shadow: 
+        0 15px 35px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+    padding-left: 1rem;
+    border-left: 2px solid transparent;
+    transition: border-color 0.3s ease;
+    
+    &:hover {
+        border-left-color: var(--anzhiyu-theme);
+    }
+}
+
+.meta-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--anzhiyu-secondtext);
+    font-weight: 700;
+    opacity: 0.7;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.meta-value {
+    font-family: 'Playfair Display', serif; /* Use serif for elegant contrast */
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--anzhiyu-fontcolor);
+    line-height: 1.3;
 }
 
 /* Motion Mock Helper */

@@ -11,18 +11,30 @@ export const mockPortfolios: Portfolio[] = [
   // 前端项目
   {
     id: "1",
-    title: "Vue3 企业级后台管理系统",
-    description: "基于 Vue3 + TypeScript + Vite 构建的现代化后台管理系统，支持动态路由、权限控制、主题切换等功能。",
-    cover_url: "https://images.unsplash.com/photo-1481487484168-9b930d5b7d9f?w=800&q=80",
+    title: "Ethereal - Digital Art Gallery",
+    description: "An immersive 3D digital gallery crafted to push the boundaries of WebGL. Ethereal allows users to navigate a curated collection of contemporary neural artworks in a seamless, fluid virtual environment.",
+    cover_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&q=80",
     project_type: ProjectType.FRONTEND,
     status: ProjectStatus.COMPLETED,
-    technologies: ["Vue3", "TypeScript", "Vite", "Element Plus", "Pinia"],
-    demo_url: "https://example.com/demo1",
-    github_url: "https://github.com/example/project1",
+    technologies: ["Vue3", "Three.js", "GSAP", "TailwindCSS", "WebGL"],
+    demo_url: "https://example.com/ethereal-demo",
+    github_url: "https://github.com/example/ethereal-gallery",
     featured: true,
     sort_order: 1,
     created_at: "2024-01-15T10:00:00Z",
-    updated_at: "2024-12-01T10:00:00Z"
+    updated_at: "2024-12-01T10:00:00Z",
+    overview: "Ethereal is not just a website; it's a spatial computing experiment for the browser. By blending architectural brutalism with fluid, generative data-visualizations, we created a gallery space that feels boundless, yet precisely engineered.",
+    role: "Lead Front-end & Creative Developer",
+    duration: "4 Months (2024)",
+    client: "Studio Neural & Co.",
+    challenge: "The primary challenge was maintaining an uncompromising 60fps frame rate while rendering hundreds of high-resolution textures, volumetric lighting, and complex post-processing bloom effects in a mobile browser environment. We also had to design an intuitive navigation system for an unconventional 3D space.",
+    solution: "We implemented a heavily optimized WebGL pipeline using Three.js instancing, combined with aggressive LOD (Level of Detail) management and texture compression (KTX2/Basis). For navigation, we introduced a hybrid UI that smoothly interpolates between classical scrolling and free 3D camera movement controlled by GSAP's physics engine.",
+    gallery_images: [
+      "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=80",
+      "https://images.unsplash.com/photo-1549490349-8643362247b5?w=1200&q=80",
+      "https://images.unsplash.com/photo-1563089145-599997674d42?w=1200&q=80",
+      "https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=1200&q=80"
+    ]
   },
   {
     id: "2",

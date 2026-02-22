@@ -7,6 +7,7 @@ import { useMouseInElement } from "@vueuse/core";
 import { useDark } from "@pureadmin/utils";
 import { ProjectType, ProjectTypeLabels } from "@/types/portfolio";
 import IconifyIconOnline from "@/components/ReIcon/src/iconifyIconOnline";
+import { ElMessage, ElNotification } from "element-plus";
 
 defineOptions({
   name: "PortfolioHero"
@@ -25,27 +26,58 @@ const route = useRoute();
 const heroRef = ref<HTMLElement | null>(null);
 const { isDark } = useDark();
 
+// 动态打字机特效词汇
+const creativeWords = ['Data Visualization', 'Neumorphism UI', 'Spatial Computing', 'WebGL Experiences', 'LLM', 'Cyberspace'];
+const currentCreativeWord = ref("");
+let wordIndex = 0;
+let charIndex = 0;
+let isDeletingWord = false;
+let typingTimer: ReturnType<typeof setTimeout> | null = null;
+
+const runTypingAnimation = () => {
+    const currentWord = creativeWords[wordIndex];
+    if (isDeletingWord) {
+        currentCreativeWord.value = currentWord.substring(0, charIndex - 1);
+        charIndex--;
+    } else {
+        currentCreativeWord.value = currentWord.substring(0, charIndex + 1);
+        charIndex++;
+    }
+    
+    let typingSpeed = isDeletingWord ? 40 : 120;
+    typingSpeed += Math.floor(Math.random() * 50); 
+    
+    if (!isDeletingWord && charIndex === currentWord.length) {
+        isDeletingWord = true;
+        typingSpeed = 2500;
+    } else if (isDeletingWord && charIndex === 0) {
+        isDeletingWord = false;
+        wordIndex = (wordIndex + 1) % creativeWords.length;
+        typingSpeed = 500;
+    }
+    typingTimer = setTimeout(runTypingAnimation, typingSpeed);
+};
+
 // 搜索关键词
 const searchKeyword = ref(props.keyword || "");
 const isSearching = ref(false);
 
 // 技术栈标签
 const techStacks = [
-  { name: "Claude Code", icon: "ri:openai-fill" },
-  { name: "Cursor", icon: "ri:cursor-fill" },
-  { name: "Windsurf", icon: "ri:windy-fill" },
+  { name: "Gemini CLI", icon: "ri:bard-fill" },
+  { name: "Codex", icon: "ri:terminal-box-fill" },
+  { name: "Claude Code", icon: "ri:robot-fill" },
   { name: "Antigravity", icon: "ri:space-ship-fill" },
   { name: "GitHub Copilot", icon: "ri:github-fill" },
 ];
 
 // 统计数据
 const stats = [
-  { count: 57, label: "UI Styles", icon: "ri:pantone-line" },
-  { count: 95, label: "Color Palettes", icon: "ri:palette-line" },
-  { count: 56, label: "Font Pairings", icon: "ri:font-size" },
-  { count: 8, label: "Tech Stacks", icon: "ri:stack-line" },
-  { count: 24, label: "Chart Types", icon: "ri:bar-chart-line" },
-  { count: 29, label: "Landing Patterns", icon: "ri:layout-grid-line" },
+  { count: 124, label: "Digital Artworks", icon: "ri:brush-4-line" },
+  { count: 45, label: "Motion Graphics", icon: "ri:film-line" },
+  { count: 28, label: "Interactive Spatials", icon: "ri:artboard-line" },
+  { count: 15, label: "UI Experiments", icon: "ri:flask-line" },
+  { count: 9, label: "Open Source Gems", icon: "ri:code-box-line" },
 ];
 
 // GSAP Context
@@ -84,7 +116,7 @@ const handleSearchInput = () => {
   debouncedSearch(searchKeyword.value);
 };
 
-// 查看全部/滚动到长廊
+// 查看全部/滚动到长廊 (灵感探索)
 const scrollToGallery = () => {
     const galleryElement = document.querySelector('.portfolio-container');
     if (galleryElement) {
@@ -92,6 +124,44 @@ const scrollToGallery = () => {
     } else {
         router.push({ path: "/portfolio" });
     }
+};
+
+// 探索作品集长廊 (随机抽取一个并准备跳转)
+let jumpTimer: ReturnType<typeof setTimeout> | null = null;
+let notificationInstance: any = null;
+
+const exploreRandomProject = () => {
+    if (jumpTimer) {
+        clearTimeout(jumpTimer);
+        jumpTimer = null;
+    }
+    if (notificationInstance) {
+        notificationInstance.close();
+    }
+    
+    // 假设这些是目前可以被访问的有效Mock ID 
+    const mockIds = ["1", "2", "3", "4", "5", "6"];
+    const randomId = mockIds[Math.floor(Math.random() * mockIds.length)];
+    
+    notificationInstance = ElNotification({
+        title: '正在启动量子跃迁...',
+        message: `正在解析坐标，将在 3 秒后坠入一个新的灵感平行宇宙。点击此处关闭可取消传送。`,
+        type: 'warning',
+        duration: 3500,
+        showClose: true,
+        onClose: () => {
+            if (jumpTimer) {
+                clearTimeout(jumpTimer);
+                jumpTimer = null;
+                ElMessage.info({ message: '传送门已关闭', customClass: 'z-index-high' });
+            }
+        }
+    });
+
+    jumpTimer = setTimeout(() => {
+        jumpTimer = null;
+        router.push(`/portfolio/${randomId}`);
+    }, 3000);
 };
 
 // 灵感探索 (随机一个关键词并自动搜索)
@@ -186,11 +256,15 @@ onMounted(() => {
     // 稍微延迟确保渲染
     setTimeout(() => {
         initAnimations();
+        runTypingAnimation();
     }, 50);
 });
 
 onUnmounted(() => {
     ctx?.revert();
+    if (typingTimer) clearTimeout(typingTimer);
+    if (jumpTimer) clearTimeout(jumpTimer);
+    if (notificationInstance) notificationInstance.close();
 });
 </script>
 
@@ -263,35 +337,28 @@ onUnmounted(() => {
 
       <!-- 3. Subtitle Description -->
       <p class="hero-description">
-        A curated collection of my creative explorations, side projects, and digital experiments. 
-        Where whimsical ideas meet deliberate design and code. Feel free to explore the gallery below.
+        这里汇聚了我的创意、想法、设计和思考🥰<br>
+        当奇思妙想遇上AI，一切皆有可能。欢迎自由探索下方的作品长廊。
       </p>
 
       <!-- 4. Command Line Search -->
       <div class="command-bar-wrapper">
-        <div class="command-bar" :class="{ 'searching': isSearching }">
+        <div class="command-bar">
             <span class="cmd-prompt">$</span>
-            <span class="cmd-command">portfolio search</span>
-            <span class="cmd-arg">--keyword</span>
-            <input 
-                v-model="searchKeyword"
-                @input="handleSearchInput"
-                type="text" 
-                class="cmd-input"
-                placeholder="type something..."
-                spellcheck="false"
-            />
+            <span class="cmd-command">portfolio generate</span>
+            <span class="cmd-arg">--inspiration</span>
+            <span class="cmd-input-mock">{{ currentCreativeWord }}</span>
             <span class="cmd-cursor"></span>
         </div>
       </div>
 
       <!-- 5. Action Buttons -->
       <div class="hero-actions">
-        <button class="btn-primary" @click="generateInspiration">
+        <button class="btn-primary" @click="scrollToGallery">
            <IconifyIconOnline icon="ri:magic-line" class="btn-icon" /> 灵感探索
         </button>
-        <button class="btn-secondary" @click="scrollToGallery">
-           探索作品集长廊 <IconifyIconOnline icon="ri:arrow-right-line" class="btn-icon" />
+        <button class="btn-secondary" @click="exploreRandomProject">
+           随机访问作品 <IconifyIconOnline icon="ri:arrow-right-line" class="btn-icon" />
         </button>
       </div>
 
@@ -301,12 +368,42 @@ onUnmounted(() => {
             v-for="(stat, index) in stats" 
             :key="index"
             class="stat-card"
+            :style="{ '--animation-delay': `${index * 0.2}s` }"
         >
-            <div class="stat-icon-wrapper">
-                <IconifyIconOnline :icon="stat.icon" class="stat-icon" />
+            <!-- Decorative Interactive Flower Art -->
+            <div class="decorative-flower">
+                <svg viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Stem -->
+                    <path class="flower-stem" d="M50,150 Q45,100 50,50" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Leaf Left -->
+                    <path class="flower-leaf" d="M50,110 Q30,90 20,105 Q35,120 50,110" fill="currentColor"/>
+                    <!-- Leaf Right -->
+                    <path class="flower-leaf delay-1" d="M50,85 Q70,70 80,85 Q65,100 50,85" fill="currentColor"/>
+                    <!-- Glowing Aura behind bloom -->
+                    <circle cx="50" cy="50" r="25" fill="var(--anzhiyu-theme)" class="flower-aura" />
+                    <!-- Bloom/Petals -->
+                    <g class="flower-bloom">
+                        <!-- Bottom-left petal -->
+                        <path d="M50,50 Q30,65 25,50 Q30,35 50,50" fill="var(--anzhiyu-theme)" opacity="0.8"/>
+                        <!-- Bottom-right petal -->
+                        <path d="M50,50 Q70,65 75,50 Q70,35 50,50" fill="var(--anzhiyu-theme)" opacity="0.8"/>
+                        <!-- Top petal -->
+                        <path d="M50,50 Q35,30 50,15 Q65,30 50,50" fill="var(--anzhiyu-theme)"/>
+                        
+                        <!-- Core -->
+                        <circle cx="50" cy="50" r="6" fill="#fff" />
+                        <circle cx="50" cy="50" r="2" fill="var(--anzhiyu-theme)" />
+                    </g>
+                </svg>
             </div>
-            <div class="stat-number">{{ stat.count }}</div>
-            <div class="stat-label">{{ stat.label }}</div>
+
+            <div class="stat-content">
+                <div class="stat-icon-wrapper">
+                    <IconifyIconOnline :icon="stat.icon" class="stat-icon" />
+                </div>
+                <div class="stat-number">{{ stat.count }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+            </div>
         </div>
       </div>
     </div>
@@ -672,7 +769,7 @@ onUnmounted(() => {
     position: relative;
     margin-bottom: 2.5rem; /* Reduced margin */
     width: 100%;
-    max-width: 580px;
+    max-width: 640px; /* Increased width to accommodate longer terms */
 }
 
 .command-bar {
@@ -696,6 +793,15 @@ onUnmounted(() => {
 .cmd-prompt { color: var(--anzhiyu-theme); margin-right: 12px; font-weight: bold; }
 .cmd-command { color: var(--anzhiyu-fontcolor); margin-right: 8px; font-weight: 600; }
 .cmd-arg { color: var(--anzhiyu-secondtext); margin-right: 12px; }
+
+.cmd-input-mock {
+    font-size: 1rem;
+    color: var(--anzhiyu-fontcolor);
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    margin-left: 8px;
+    min-width: 2px;
+}
 
 .cmd-input {
     flex: 1;
@@ -793,71 +899,201 @@ onUnmounted(() => {
     }
 }
 
-/* --- Stats Cards --- */
+/* --- Stats Cards & Floral Art --- */
 .stats-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* 强制不换行 */
     justify-content: center;
-    gap: 1.25rem;
+    gap: 1.5rem; 
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .stat-card {
+    position: relative;
     background: var(--anzhiyu-card-bg);
-    padding: 1.5rem;
-    border-radius: 16px;
-    min-width: 150px;
+    padding: 1.8rem 1.2rem;
+    border-radius: 20px;
+    flex: 1; /* 平分空间 */
+    min-width: 0; /* 防止内容撑破 */
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-    border: 1px solid transparent;
-    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(128, 128, 128, 0.08); /* Transparent thin border */
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden; /* Important for bounding the flower */
     
+    .stat-content {
+        position: relative;
+        z-index: 2; /* Ensure content is above flower */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Hover Interaction */
     &:hover {
-        transform: translateY(-5px);
-        border-color: var(--anzhiyu-theme);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transform: translateY(-8px);
+        border-color: rgba(var(--anzhiyu-theme-rgb), 0.3);
+        box-shadow: 0 15px 35px rgba(var(--anzhiyu-theme-rgb), 0.08);
+        background: linear-gradient(180deg, var(--anzhiyu-card-bg) 0%, rgba(var(--anzhiyu-theme-rgb), 0.03) 100%);
         
-        .stat-icon { color: var(--anzhiyu-theme); }
+        .stat-icon { color: var(--anzhiyu-theme); transform: scale(1.1); }
         .stat-number { color: var(--anzhiyu-theme); }
+
+        /* Trigger Flower Blooming */
+        .decorative-flower svg {
+            color: rgba(var(--anzhiyu-theme-rgb), 0.5);
+            filter: drop-shadow(0 0 8px rgba(var(--anzhiyu-theme-rgb), 0.3));
+        }
+
+        .flower-bloom {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+        }
+
+        .flower-leaf {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .flower-aura {
+            opacity: 0.15;
+            transform: scale(1.5);
+        }
     }
 }
 
 .stat-icon-wrapper {
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
 }
 
 .stat-icon {
-    font-size: 1.75rem;
+    font-size: 1.8rem;
     color: var(--anzhiyu-secondtext);
-    transition: color 0.3s;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .stat-number {
-    font-size: 2rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.2rem;
     font-weight: 800;
     color: var(--anzhiyu-fontcolor);
     line-height: 1;
-    margin-bottom: 0.5rem;
-    transition: color 0.3s;
+    margin-bottom: 0.6rem;
+    letter-spacing: -1px;
+    transition: color 0.4s ease;
 }
 
 .stat-label {
-    font-size: 0.875rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
     color: var(--anzhiyu-secondtext);
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+/* Base Decorative Flower Styles */
+.decorative-flower {
+    position: absolute;
+    bottom: -15px; /* Sink it into the bottom slightly */
+    right: -25px; /* Push to the right edge */
+    width: 110px;
+    height: 140px;
+    z-index: 1;
+    pointer-events: none;
+    transform-origin: bottom center;
+    /* Independent swaying animation offset by CSS variable delay to make them unsynced */
+    animation: gentleSway 6s ease-in-out infinite;
+    animation-delay: var(--animation-delay, 0s);
+
+    svg {
+        width: 100%;
+        height: 100%;
+        color: rgba(128, 128, 128, 0.15); /* Subdued stem color initially */
+        transition: all 0.6s ease;
+    }
+}
+
+/* Hidden States before Hovering */
+.flower-bloom {
+    transform-origin: 50px 50px; /* Center of bloom */
+    transform: scale(0.2) rotate(-60deg);
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.flower-leaf {
+    transform-origin: 50px 85px; /* Pivot near stem */
+    transform: scale(0) rotate(10deg);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    
+    &.delay-1 {
+        transform-origin: 50px 110px;
+        transition-delay: 0.1s;
+    }
+}
+
+.flower-aura {
+    opacity: 0;
+    transform: scale(0.5);
+    transform-origin: 50px 50px;
+    transition: all 0.8s ease;
+}
+
+/* Gentle Sway Animation */
+@keyframes gentleSway {
+    0% { transform: rotate(0deg); }
+    33% { transform: rotate(4deg); }
+    66% { transform: rotate(-3deg); }
+    100% { transform: rotate(0deg); }
 }
 
 @media (max-width: 768px) {
-    .portfolio-hero { padding: 6rem 1rem 3rem; }
+    .portfolio-hero { 
+        min-height: auto; 
+        padding: 1rem 1rem 4rem; 
+        align-items: flex-start;
+    }
     .title-line { font-size: 3rem; }
     .title-line.secondary { font-size: 2.5rem; }
-    .tech-stacks { gap: 8px; }
-    .tech-chip { padding: 6px 12px; font-size: 0.8rem; }
+    .tech-stacks { gap: 6px; }
+    .tech-chip { padding: 4px 10px; font-size: 0.7rem; white-space: nowrap; }
     .hero-actions { flex-direction: column; gap: 1rem; width: 100%; max-width: 320px; }
     .btn-primary, .btn-secondary { width: 100%; }
     .command-bar { padding: 14px 16px; flex-wrap: wrap; }
-    .stat-card { flex: 1 1 40%; min-width: 120px; }
+    
+    .stats-container { 
+        justify-content: flex-start;
+        overflow-x: auto;
+        /* Increase padding to prevent hover top-clip and shadow cutoffs */
+        padding-top: 20px;
+        padding-bottom: 20px;
+        margin-top: -20px;
+        margin-bottom: -15px;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        
+        /* Fade out effect on both sides to avoid sudden cut-off */
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        
+        /* Hide scrollbar */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+    
+    .stat-card { 
+        flex: 0 0 140px; /* Fixed width for scrolling cards */
+        scroll-snap-align: start;
+    }
 }
 </style>

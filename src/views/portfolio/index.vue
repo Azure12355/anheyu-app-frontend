@@ -191,7 +191,23 @@ onMounted(() => {
         <!-- Header -->
         <div class="gallery-header">
             <h2 class="gallery-title">
-                Creative <br> Archive 
+                <!-- Starlink Meteor Effect -->
+                <div class="starlink-wrapper">
+                    <div class="orbit-ring ring-1">
+                        <div class="meteor-base" style="--rotation: 0deg"><div class="meteor m-1"></div></div>
+                        <div class="meteor-base" style="--rotation: -12deg"><div class="meteor m-2"></div></div>
+                        <div class="meteor-base" style="--rotation: -24deg"><div class="meteor m-3"></div></div>
+                    </div>
+                    <div class="orbit-ring ring-2">
+                        <div class="meteor-base" style="--rotation: 120deg"><div class="meteor reverse-tail meteor-purple m-1"></div></div>
+                        <div class="meteor-base" style="--rotation: 105deg"><div class="meteor reverse-tail meteor-purple m-2"></div></div>
+                    </div>
+                    <div class="orbit-ring ring-3">
+                        <div class="meteor-base" style="--rotation: 210deg"><div class="meteor m-1"></div></div>
+                    </div>
+                </div>
+
+                <span class="title-text-content">Creative <br> Archive</span>
                 <span class="count">{{ pagination.total }}</span>
             </h2>
             <p class="gallery-desc">
@@ -354,10 +370,10 @@ onMounted(() => {
     min-width: 600px;
     min-height: 600px;
     border-radius: 50%;
-    filter: blur(120px);
+    filter: blur(160px); /* Increased blur for more haziness */
     z-index: -1;
     pointer-events: none;
-    opacity: 0.18;
+    opacity: 0.08; /* Extremely light opacity */
     animation: breathingHalo 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform, opacity;
   }
@@ -381,19 +397,19 @@ onMounted(() => {
 @keyframes breathingHalo {
   0% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.15;
+    opacity: 0.05;
   }
   33% {
     transform: translate(5vw, 5vh) scale(1.1);
-    opacity: 0.2;
+    opacity: 0.08;
   }
   66% {
     transform: translate(-5vw, 2vh) scale(0.95);
-    opacity: 0.18;
+    opacity: 0.06;
   }
   100% {
     transform: translate(2vw, -5vh) scale(1.05);
-    opacity: 0.15;
+    opacity: 0.05;
   }
 }
 
@@ -437,6 +453,9 @@ onMounted(() => {
     padding-top: 0;
     
     .gallery-title {
+        position: relative;
+        display: inline-block;
+        z-index: 1;
         font-family: 'Playfair Display', serif;
         font-size: 3.5rem;
         font-weight: 700;
@@ -445,6 +464,11 @@ onMounted(() => {
         margin-bottom: 1rem;
         line-height: 1.1;
         
+        .title-text-content {
+            position: relative;
+            z-index: 2;
+        }
+
         .count {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 1.2rem;
@@ -464,6 +488,113 @@ onMounted(() => {
         line-height: 1.7;
         opacity: 0.8;
     }
+}
+
+/* --- Starlink Meteor Effect --- */
+.starlink-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 45%; 
+    width: 280px;
+    height: 280px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.orbit-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(128, 128, 128, 0.1); 
+    transform-style: preserve-3d;
+}
+
+.ring-1 {
+    transform: rotateX(65deg) rotateY(-20deg);
+    animation: spin1 12s linear infinite;
+    border-color: rgba(64, 158, 255, 0.15); /* Theme fallback blue */
+}
+
+.ring-2 {
+    transform: rotateX(75deg) rotateY(25deg);
+    animation: spin2 18s linear infinite reverse;
+    border-color: rgba(168, 85, 247, 0.15); /* Purple #a855f7 */
+}
+
+.ring-3 {
+    transform: rotateX(55deg) rotateY(45deg) scale(0.8);
+    animation: spin3 22s linear infinite;
+    border-style: dashed;
+    border-color: rgba(128, 128, 128, 0.15);
+}
+
+@keyframes spin1 {
+    0% { transform: rotateX(65deg) rotateY(-20deg) rotateZ(0deg); }
+    100% { transform: rotateX(65deg) rotateY(-20deg) rotateZ(360deg); }
+}
+
+@keyframes spin2 {
+    0% { transform: rotateX(75deg) rotateY(25deg) rotateZ(0deg); }
+    100% { transform: rotateX(75deg) rotateY(25deg) rotateZ(360deg); }
+}
+
+@keyframes spin3 {
+    0% { transform: rotateX(55deg) rotateY(45deg) rotateZ(0deg); }
+    100% { transform: rotateX(55deg) rotateY(45deg) rotateZ(360deg); }
+}
+
+.meteor-base {
+    position: absolute;
+    inset: -1px; /* compensate for border width */
+    border-radius: 50%;
+    transform: rotateZ(var(--rotation));
+}
+
+.meteor {
+    position: absolute;
+    top: -2px; /* Center on border */
+    left: calc(50% - 2px);
+    width: 4px;
+    height: 4px;
+    background: var(--anzhiyu-theme);
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px rgba(64, 158, 255, 0.6),
+                0 0 20px 4px rgba(64, 158, 255, 0.4);
+}
+
+.meteor.m-1 { transform: scale(1); opacity: 1; }
+.meteor.m-2 { transform: scale(0.7); opacity: 0.7; }
+.meteor.m-3 { transform: scale(0.4); opacity: 0.4; }
+
+.meteor::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 50%; /* tail runs to the left */
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(to right, transparent 0%, rgba(64, 158, 255, 0.1) 40%, var(--anzhiyu-theme) 100%);
+    transform: translateY(-50%);
+    border-radius: 100%;
+    filter: drop-shadow(0 0 4px var(--anzhiyu-theme));
+}
+
+.meteor-purple {
+    background: #a855f7;
+    box-shadow: 0 0 10px 2px rgba(168, 85, 247, 0.6),
+                0 0 20px 4px rgba(168, 85, 247, 0.4);
+}
+
+.meteor-purple::after {
+    background: linear-gradient(to right, transparent 0%, rgba(168, 85, 247, 0.1) 40%, #a855f7 100%);
+    filter: drop-shadow(0 0 4px #a855f7);
+}
+
+.reverse-tail.meteor::after {
+    right: auto;
+    left: 50%;
+    background: linear-gradient(to left, transparent 0%, rgba(168, 85, 247, 0.1) 40%, #a855f7 100%);
 }
 
 /* Filter Section */
@@ -623,8 +754,17 @@ onMounted(() => {
     gap: 1.5rem;
   }
 
-  .gallery-header .gallery-title {
-      font-size: 2.8rem;
+  .gallery-header {
+      text-align: center;
+      
+      .gallery-title {
+          font-size: 2.8rem;
+          margin-bottom: 1.5rem;
+      }
+      
+      .starlink-wrapper {
+          left: 50%;
+      }
   }
 }
 </style>

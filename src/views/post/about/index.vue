@@ -78,8 +78,28 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="aboutConfig" class="about-container">
-    <!-- 作者头像框 -->
+  <div class="about-page-wrapper">
+    <!-- Butterflies Effect -->
+    <div class="butterflies-container">
+      <div class="butterfly-wrap b-wrap-1">
+        <div class="butterfly"><div class="wing wing-left"></div><div class="wing wing-right"></div></div>
+      </div>
+      <div class="butterfly-wrap b-wrap-2">
+        <div class="butterfly"><div class="wing wing-left"></div><div class="wing wing-right"></div></div>
+      </div>
+      <div class="butterfly-wrap b-wrap-3">
+        <div class="butterfly"><div class="wing wing-left"></div><div class="wing wing-right"></div></div>
+      </div>
+      <div class="butterfly-wrap b-wrap-4">
+        <div class="butterfly"><div class="wing wing-left"></div><div class="wing wing-right"></div></div>
+      </div>
+      <div class="butterfly-wrap b-wrap-5">
+        <div class="butterfly"><div class="wing wing-left"></div><div class="wing wing-right"></div></div>
+      </div>
+    </div>
+
+    <div v-if="aboutConfig" class="about-container">
+      <!-- 作者头像框 -->
     <AuthorBox
       v-if="enableConfig.author_box"
       :avatar-img="aboutConfig.avatar_img"
@@ -182,17 +202,28 @@ onMounted(async () => {
     </div>
   </div>
 
-  <div v-else class="loading-container">
-    <div class="loading">加载中...</div>
+    <div v-else class="loading-container">
+      <div class="loading">加载中...</div>
+    </div>
   </div>
 </template>
 
 <style lang="scss">
+.about-page-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  z-index: 1;
+  overflow: hidden;
+}
+
 .about-container {
   animation: slide-in 0.6s 0.2s backwards;
   max-width: 1400px;
   padding: 0.5rem;
   margin: 0 auto;
+  position: relative;
+  z-index: 10;
 }
 
 .author-title {
@@ -381,4 +412,153 @@ onMounted(async () => {
     transform: translateY(0);
   }
 }
+
+/* --- Blue/Purple Butterflies Effect --- */
+.butterflies-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0; /* Behind content */
+    pointer-events: none;
+    perspective: 1000px;
+}
+
+.butterfly-wrap {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.5));
+}
+
+.butterfly {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(55deg) rotateY(15deg) rotateZ(10deg);
+}
+
+.wing {
+    position: absolute;
+    top: 5px;
+    width: 28px;
+    height: 38px;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.85) 0%, rgba(56, 189, 248, 0.85) 100%);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.6);
+    border-radius: 50% 50% 20% 80% / 80% 80% 20% 20%;
+    opacity: 0.9;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+.wing::after {
+    content: '';
+    position: absolute;
+    bottom: -16px;
+    width: 16px;
+    height: 24px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.75) 0%, rgba(14, 165, 233, 0.75) 100%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.wing-left {
+    left: 2px;
+    transform-origin: right center;
+    animation: flap-l 0.15s ease-in-out infinite alternate;
+}
+.wing-left::after {
+    right: 0;
+    transform-origin: top right;
+    transform: rotate(15deg);
+}
+
+.wing-right {
+    left: 30px;
+    border-radius: 50% 50% 80% 20% / 80% 80% 20% 20%;
+    transform-origin: left center;
+    animation: flap-r 0.15s ease-in-out infinite alternate;
+}
+.wing-right::after {
+    left: 0;
+    transform-origin: top left;
+    transform: rotate(-15deg);
+}
+
+@keyframes flap-l {
+    0% { transform: rotateY(0deg) rotateX(0deg); }
+    100% { transform: rotateY(65deg) rotateX(5deg); }
+}
+@keyframes flap-r {
+    0% { transform: rotateY(0deg) rotateX(0deg); }
+    100% { transform: rotateY(-65deg) rotateX(5deg); }
+}
+
+/* Flight Paths */
+.b-wrap-1 {
+    bottom: 20%;
+    left: 10%;
+    animation: flight1 22s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.b-wrap-2 {
+    top: 40%;
+    right: 15%;
+    animation: flight2 28s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: -7s;
+}
+.b-wrap-3 {
+    top: 15%;
+    left: 30%;
+    animation: flight3 24s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: -14s;
+}
+.b-wrap-4 {
+    top: 60%;
+    left: 20%;
+    animation: flight4 26s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: -3s;
+}
+.b-wrap-5 {
+    bottom: 30%;
+    right: 25%;
+    animation: flight5 20s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: -11s;
+}
+
+@keyframes flight1 {
+    0% { transform: translate(0, 0) scale(0.65) rotate(0deg); }
+    25% { transform: translate(30vw, -45vh) scale(0.85) rotate(55deg); }
+    50% { transform: translate(65vw, -10vh) scale(0.55) rotate(110deg); }
+    75% { transform: translate(35vw, 15vh) scale(0.75) rotate(-35deg); }
+    100% { transform: translate(0, 0) scale(0.65) rotate(0deg); }
+}
+
+@keyframes flight2 {
+    0% { transform: translate(0, 0) scale(0.55) rotate(0deg); }
+    33% { transform: translate(-35vw, -35vh) scale(0.75) rotate(-55deg); }
+    66% { transform: translate(-55vw, 25vh) scale(0.45) rotate(65deg); }
+    100% { transform: translate(0, 0) scale(0.55) rotate(0deg); }
+}
+
+@keyframes flight3 {
+    0% { transform: translate(0, 0) scale(0.45) rotate(20deg); }
+    33% { transform: translate(25vw, 35vh) scale(0.65) rotate(75deg); }
+    66% { transform: translate(-25vw, 25vh) scale(0.5) rotate(135deg); }
+    100% { transform: translate(0, 0) scale(0.45) rotate(380deg); }
+}
+
+@keyframes flight4 {
+    0% { transform: translate(0, 0) scale(0.6) rotate(-10deg); }
+    33% { transform: translate(45vw, -20vh) scale(0.8) rotate(45deg); }
+    66% { transform: translate(15vw, -45vh) scale(0.5) rotate(-25deg); }
+    100% { transform: translate(0, 0) scale(0.6) rotate(-10deg); }
+}
+
+@keyframes flight5 {
+    0% { transform: translate(0, 0) scale(0.7) rotate(15deg); }
+    33% { transform: translate(-25vw, -40vh) scale(0.9) rotate(-75deg); }
+    66% { transform: translate(-45vw, 15vh) scale(0.6) rotate(35deg); }
+    100% { transform: translate(0, 0) scale(0.7) rotate(15deg); }
+}
+
 </style>

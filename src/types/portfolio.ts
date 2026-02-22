@@ -61,6 +61,15 @@ export interface Portfolio {
   created_at: string;
   updated_at: string;
   mode?: "light" | "dark";
+
+  // Optional Rich Detail Fields for Portfolio Detail page
+  overview?: string;
+  role?: string;
+  duration?: string;
+  client?: string;
+  challenge?: string;
+  solution?: string;
+  gallery_images?: string[];
 }
 
 // 获取作品列表参数
