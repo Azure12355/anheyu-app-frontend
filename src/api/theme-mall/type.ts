@@ -4,6 +4,11 @@
 export type ThemeType = "community" | "pro";
 
 /**
+ * 部署类型枚举
+ */
+export type DeployType = "standard" | "ssr";
+
+/**
  * 主题对象类型定义（与后端ThemeInfo结构匹配）
  */
 export interface Theme {
@@ -17,6 +22,8 @@ export interface Theme {
   description: string;
   /** 主题类型 */
   themeType: ThemeType;
+  /** 部署类型：standard-传统安装，ssr-Docker SSR 部署 */
+  deployType: DeployType;
   /** GitHub仓库地址（社区版） */
   repoUrl: string;
   /** 说明地址（PRO版） */
@@ -57,6 +64,12 @@ export interface Theme {
   user_config?: Record<string, any>;
   /** 已安装版本 */
   installed_version?: string;
+
+  // SSR 主题特有字段（已安装的 SSR 主题）
+  /** SSR 主题运行状态 */
+  ssrStatus?: SSRThemeStatus;
+  /** SSR 主题运行端口 */
+  ssrPort?: number;
 }
 
 /**
@@ -157,4 +170,163 @@ export interface ThemeListResponse {
   message: string;
   /** 响应数据 */
   data: ThemeListData | null;
+}
+
+// ===== 主题配置相关类型定义 =====
+
+/**
+ * 主题配置选项
+ */
+export interface ThemeSettingOption {
+  /** 选项显示名称 */
+  label: string;
+  /** 选项值 */
+  value: string | number | boolean;
+}
+
+/**
+ * 字段验证规则
+ */
+export interface ThemeFieldValidation {
+  /** 最小长度 */
+  minLength?: number;
+  /** 最大长度 */
+  maxLength?: number;
+  /** 最小值（数字类型） */
+  min?: number;
+  /** 最大值（数字类型） */
+  max?: number;
+  /** 正则表达式 */
+  pattern?: string;
+  /** 验证失败提示 */
+  message?: string;
+}
+
+/**
+ * 字段显示条件
+ */
+export interface ThemeFieldCondition {
+  /** 依赖的字段名 */
+  field: string;
+  /** 操作符: eq, neq, contains, gt, lt */
+  operator: "eq" | "neq" | "contains" | "gt" | "lt";
+  /** 比较值 */
+  value: any;
+}
+
+/**
+ * 主题配置字段定义
+ */
+export interface ThemeSettingField {
+  /** 字段名称（唯一标识） */
+  name: string;
+  /** 显示标签 */
+  label: string;
+  /** 字段类型: text, textarea, number, select, color, switch, image, code */
+  type:
+    | "text"
+    | "textarea"
+    | "number"
+    | "select"
+    | "color"
+    | "switch"
+    | "image"
+    | "code";
+  /** 默认值 */
+  default?: any;
+  /** 占位提示 */
+  placeholder?: string;
+  /** 字段描述 */
+  description?: string;
+  /** 是否必填 */
+  required?: boolean;
+  /** 选项（用于 select 类型） */
+  options?: ThemeSettingOption[];
+  /** 验证规则 */
+  validation?: ThemeFieldValidation;
+  /** 显示条件（依赖其他字段） */
+  condition?: ThemeFieldCondition;
+}
+
+/**
+ * 主题配置分组
+ */
+export interface ThemeSettingGroup {
+  /** 分组标识 */
+  group: string;
+  /** 分组显示名称 */
+  label: string;
+  /** 配置字段列表 */
+  fields: ThemeSettingField[];
+}
+
+/**
+ * 主题配置响应
+ */
+export interface ThemeConfigResponse {
+  /** 主题名称 */
+  theme_name: string;
+  /** 配置定义 */
+  settings: ThemeSettingGroup[];
+  /** 当前配置值（用户配置 + 默认值） */
+  values: Record<string, any>;
+}
+
+/**
+ * 保存主题配置请求
+ */
+export interface ThemeConfigSaveRequest {
+  /** 主题名称 */
+  theme_name: string;
+  /** 配置值 */
+  config: Record<string, any>;
+}
+
+// ===== SSR 主题相关类型定义 =====
+
+/**
+ * SSR 主题状态
+ */
+export type SSRThemeStatus =
+  | "not_installed"
+  | "installed"
+  | "running"
+  | "error";
+
+/**
+ * SSR 主题信息
+ */
+export interface SSRThemeInfo {
+  /** 主题名称 */
+  name: string;
+  /** 版本号 */
+  version: string;
+  /** 状态 */
+  status: SSRThemeStatus;
+  /** 运行端口 */
+  port?: number;
+  /** 安装时间 */
+  installedAt?: string;
+  /** 启动时间 */
+  startedAt?: string;
+  /** 是否是当前使用的主题（从数据库获取） */
+  is_current?: boolean;
+}
+
+/**
+ * SSR 主题安装请求
+ */
+export interface SSRThemeInstallRequest {
+  /** 主题名称 */
+  themeName: string;
+  /** 下载链接 */
+  downloadUrl: string;
+}
+
+/**
+ * SSR 主题启动请求
+ */
+export interface SSRThemeStartRequest {
+  /** 运行端口 */
+  port?: number;
 }
