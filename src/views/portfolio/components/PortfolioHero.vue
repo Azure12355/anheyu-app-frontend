@@ -6,6 +6,7 @@ import { debounce } from "lodash-es";
 import { useMouseInElement } from "@vueuse/core";
 import { useDark } from "@pureadmin/utils";
 import { ProjectType, ProjectTypeLabels } from "@/types/portfolio";
+import type { Portfolio } from "@/types/portfolio";
 import IconifyIconOnline from "@/components/ReIcon/src/iconifyIconOnline";
 import { ElMessage, ElNotification } from "element-plus";
 
@@ -15,6 +16,7 @@ defineOptions({
 
 const props = defineProps<{
   keyword?: string;
+  portfolioIds?: string[];
 }>();
 
 const emit = defineEmits<{
@@ -138,11 +140,15 @@ const exploreRandomProject = () => {
     if (notificationInstance) {
         notificationInstance.close();
     }
-    
-    // 假设这些是目前可以被访问的有效Mock ID 
-    const mockIds = ["1", "2", "3", "4", "5", "6"];
-    const randomId = mockIds[Math.floor(Math.random() * mockIds.length)];
-    
+
+    // 检查是否有可用的作品 ID
+    if (!props.portfolioIds || props.portfolioIds.length === 0) {
+        ElMessage.warning({ message: '暂无可访问的作品', customClass: 'z-index-high' });
+        return;
+    }
+
+    const randomId = props.portfolioIds[Math.floor(Math.random() * props.portfolioIds.length)];
+
     notificationInstance = ElNotification({
         title: '正在启动量子跃迁...',
         message: `正在解析坐标，将在 3 秒后坠入一个新的灵感平行宇宙。点击此处关闭可取消传送。`,

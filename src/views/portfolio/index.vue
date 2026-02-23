@@ -58,6 +58,9 @@ const languageOptions = [
   "Swift"
 ];
 
+// 作品 ID 列表（用于随机跳转）
+const portfolioIds = computed(() => portfolios.value.map(p => p.id));
+
 
 
 // 懒加载 Observer
@@ -167,7 +170,11 @@ onMounted(() => {
   <div class="portfolio-page">
     <!-- Hero 栏 (全宽) -->
     <div class="portfolio-hero-wrapper">
-      <PortfolioHero :keyword="searchKeyword" @search="handleSearch" />
+      <PortfolioHero
+        :keyword="searchKeyword"
+        :portfolio-ids="portfolioIds"
+        @search="handleSearch"
+      />
     </div>
 
     <!-- Gallery Section -->

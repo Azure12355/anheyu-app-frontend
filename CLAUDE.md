@@ -215,3 +215,511 @@ src/
 - 图片优化和懒加载
 - localForage 缓存策略
 - FPS 监控（仅开发模式）
+
+---
+
+# 代码规范与开发指南
+
+## 代码风格规范
+
+### EditorConfig 配置
+
+项目根目录的 `.editorconfig` 定义了基础编码规范：
+
+```ini
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+insert_final_newline = false
+trim_trailing_whitespace = false
+```
+
+**重要**：
+- 缩进：2 空格
+- 换行符：LF
+- 文件末尾：插入空行（Markdown 除外）
+
+### ESLint 规则
+
+配置文件：`eslint.config.js`
+
+**核心规则**：
+- 禁用 `no-debugger`
+- 未使用变量忽略下划线前缀：`^_`
+- Vue 组件允许多单词命名
+- HTML 标签自闭合：`vue/html-self-closing: always`
+
+```bash
+# 运行 ESLint
+pnpm lint:eslint
+
+# 自动修复
+pnpm lint:eslint --fix
+```
+
+### Prettier 规则
+
+配置文件：`.prettierrc.js`
+
+```javascript
+{
+  bracketSpacing: true,
+  singleQuote: false,    // 使用双引号
+  arrowParens: "avoid",  // 单参数箭头函数省略括号
+  trailingComma: "none"  // 不使用尾随逗号
+```
+
+```bash
+# 运行 Prettier
+pnpm lint:prettier
+```
+
+### Stylelint 规则
+
+配置文件：`stylelint.config.js`
+
+- 支持 Tailwind、SCSS 语法
+- 支持 `deep`、`global` 伪类
+- CSS 属性按特定顺序排列
+
+```bash
+# 运行 Stylelint
+pnpm lint:stylelint
+```
+
+### 运行所有检查
+
+```bash
+pnpm lint  # 依次运行 ESLint、Prettier、Stylelint
+```
+
+## TypeScript 规范
+
+### 类型定义规范
+
+```typescript
+// 接口定义 - 使用 interface
+interface UserInfo {
+  id: string;
+  username: string;
+  email: string;
+  created_at: string;
+}
+
+// 类型别名 - 用于联合类型
+type Status = 'active' | 'inactive' | 'pending';
+
+// 泛型接口
+export type ApiResponse<T = any> = {
+  code: number;
+  message: string;
+  data: T;
+};
+
+// 必需属性和可选属性
+interface Article {
+  id: string;
+  title: string;
+  content: string;
+  author?: UserInfo;  // 可选属性用 ?
+  readonly created_at: string;  // 只读属性用 readonly
+}
+```
+
+### 类型导入规范
+
+```typescript
+// 类型导入
+import type { UserInfo, Article } from '@/types/user';
+import type { Ref } from 'vue';
+
+// 值导入
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+```
+
+## Vue 组件规范
+
+### 组件结构模板
+
+```vue
+<script setup lang="ts">
+// 1. 导入语句
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+// 2. 组件选项（name 必须定义，用于 keep-alive）
+defineOptions({
+  name: 'ComponentName'
+});
+
+// 3. Props 定义
+interface Props {
+  title?: string;
+  visible: boolean;
+  data?: Record<string, any>;
+}
+const props = withDefaults(defineProps<Props>(), {
+  title: '默认标题',
+  visible: false
+});
+
+// 4. Emits 定义
+interface Emits {
+  (e: 'update:visible', value: boolean): void;
+  (e: 'submit', data: SubmitData): void;
+}
+const emit = defineEmits<Emits>();
+
+// 5. 响应式数据
+const count = ref(0);
+const doubled = computed(() => count.value * 2);
+
+// 6. 方法
+const handleClick = () => {
+  emit('update:visible', false);
+};
+
+// 7. 生命周期
+onMounted(() => {
+  // 初始化逻辑
+});
+</script>
+
+<template>
+  <div class="component-wrapper">
+    <h1>{{ props.title }}</h1>
+    <button @click="handleClick">点击</button>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.component-wrapper {
+  // 样式定义
+}
+</style>
+```
+
+### 命名规范
+
+| 类型 | 规范 | 示例 |
+|-----|------|------|
+| 组件名 | PascalCase | `defineOptions({ name: 'UserSettings' })` |
+| 文件名 | kebab-case | `user-settings/index.vue` |
+| 变量/函数 | camelCase | `userName`、`handleSubmit` |
+| 常量 | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
+| 接口/类型 | PascalCase | `interface UserInfo {}` |
+| 私有变量 | 下划线前缀 | `const _privateData = ref('')` |
+
+### Props/Emits 定义
+
+```typescript
+// Props - 使用泛型语法
+interface Props {
+  title: string;        // 必需
+  count?: number;       // 可选
+  items?: string[];      // 可选数组
+}
+const props = defineProps<Props>();
+
+// Emits - 使用泛型语法
+const emit = defineEmits<{
+  'update:modelValue': [value: string];
+  'change': [value: string, oldValue: string];
+}>();
+```
+
+### 组件通信规范
+
+1. **父子通信**：Props 向下，Emits 向上
+2. **v-model**：`update:modelValue` 事件
+3. **跨组件通信**：优先使用 Pinia Store
+4. **依赖注入**：provide/inject（谨慎使用）
+
+## Pinia Store 规范
+
+### Store 定义模板
+
+```typescript
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+
+// 命名规范：use[模块名]Store
+// Store ID：anheyu-[模块名]
+export const useUserStore = defineStore('anheyu-user', () => {
+  // State - 使用 ref
+  const token = ref<string>('');
+  const userInfo = ref<UserInfo | null>(null);
+
+  // Getters - 使用 computed
+  const isAuthenticated = computed(() => !!token.value);
+
+  // Actions - 普通函数
+  async function login(data: LoginData) {
+    const res = await loginApi(data);
+    token.value = res.data.token;
+    userInfo.value = res.data.user;
+  }
+
+  function logout() {
+    token.value = '';
+    userInfo.value = null;
+  }
+
+  // 返回所有需要暴露的状态和方法
+  return {
+    token,
+    userInfo,
+    isAuthenticated,
+    login,
+    logout
+  };
+});
+```
+
+### Store 组织规范
+
+- 文件位置：`src/store/modules/[模块名].ts`
+- Store 命名：`use[模块名]Store`
+- Store ID：`anheyu-[模块名]`
+
+## API 调用规范
+
+### API 函数定义
+
+```typescript
+// src/api/user.ts
+import { http } from '@/utils/http';
+import type { UserInfo, LoginData, LoginResultData } from './types';
+
+/**
+ * 获取用户信息
+ * @returns Promise<UserInfo>
+ */
+export function getUserInfoApi(): Promise<UserInfo> {
+  return http.get<UserInfo>('/user/info');
+}
+
+/**
+ * 用户登录
+ * @param data 登录数据
+ * @returns Promise<LoginResultData>
+ */
+export function loginApi(data: LoginData): Promise<LoginResultData> {
+  return http.post<LoginResultData>('/auth/login', data);
+}
+```
+
+### HTTP 类型定义
+
+```typescript
+// src/api/types.d.ts 或相关的类型文件
+export interface UserInfo {
+  id: string;
+  username: string;
+  nickname: string;
+  avatar: string;
+  email: string;
+  status: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LoginData {
+  username: string;
+  password: string;
+  captcha_id?: string;
+  captcha_value?: string;
+}
+
+export interface LoginResultData {
+  token: string;
+  user: UserInfo;
+}
+```
+
+### 错误处理
+
+```typescript
+import { http } from '@/utils/http';
+
+try {
+  const result = await http.post('/api/endpoint', data);
+  // 处理成功响应
+} catch (error) {
+  // 错误已在拦截器中统一处理
+  // 业务层可针对特定错误做特殊处理
+  console.error('请求失败:', error);
+}
+```
+
+## 样式规范
+
+### TailwindCSS 使用
+
+```vue
+<template>
+  <!-- 工具类使用：直接写 class -->
+  <div class="flex items-center justify-between p-4 bg-white">
+    <span class="text-lg font-bold">标题</span>
+  </div>
+</template>
+```
+
+### SCSS 变量
+
+```scss
+// 定义变量
+:root {
+  --anzhiyu-theme: #163bf2;
+  --anzhiyu-card-bg: #ffffff;
+}
+
+// 使用变量
+.my-component {
+  background-color: var(--anzhiyu-theme);
+}
+```
+
+### 样式组织
+
+1. **全局样式**：`src/style/index.scss`
+2. **组件样式**：使用 `<style lang="scss" scoped>`
+3. **响应式**：使用 `@media` 查询
+
+## 路由规范
+
+### 路由定义模板
+
+```typescript
+// src/router/modules/user.ts
+import Layout from '@/layout/index.vue';
+
+export default [
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/list',
+    meta: {
+      icon: 'ep:user',
+      title: '用户管理',
+      roles: ['1']  // 角色权限
+    },
+    children: [
+      {
+        path: '/user/list',
+        name: 'UserList',
+        component: () => import('@/views/user/list/index.vue'),
+        meta: {
+          title: '用户列表',
+          icon: 'ep:user',
+          roles: ['1'],
+          keepAlive: true  // 启用缓存
+        }
+      }
+    ]
+  }
+];
+```
+
+### 路由元数据
+
+| 字段 | 说明 | 示例 |
+|-----|------|------|
+| title | 标题 | `'用户管理'` |
+| icon | 图标 | `'ep:user'` |
+| roles | 权限角色 | `['1']` |
+| keepAlive | 缓存组件 | `true` |
+| hidden | 隐藏菜单 | `true` |
+
+## Git 规范
+
+### Commit Message 规范
+
+使用 Husky + Commitlint：
+
+```
+<类型>(作用域): <描述>
+
+# 类型
+feat:     新功能
+fix:      修复问题
+docs:     文档更新
+style:    样式修改
+refactor: 代码重构
+perf:     性能优化
+test:     测试相关
+chore:    构建/工具链
+```
+
+示例：
+```
+feat(user): 添加用户详情页面
+fix(upload): 修复图片上传失败问题
+docs: 更新 API 文档
+style: 调整按钮样式
+```
+
+### Pre-commit 钩子
+
+提交前自动执行：
+- ESLint 检查
+- Prettier 格式化
+- Stylelint 检查
+
+```bash
+# 跳过钩子（谨慎使用）
+git commit --no-verify
+```
+
+## 开发注意事项
+
+### 必须定义组件名
+
+```vue
+<script setup lang="ts">
+defineOptions({
+  name: 'ComponentName'  // 必须！用于 keep-alive
+});
+</script>
+```
+
+### 路径别名
+
+```typescript
+// @/* 映射到 src/*
+import { http } from '@/utils/http';
+import { useUserStore } from '@/store/modules/user';
+```
+
+### 全局类型
+
+```typescript
+// 在 src/types/global.d.ts 中定义全局类型
+// 声明后可直接使用，无需 import
+```
+
+### 禁止使用的模式
+
+```typescript
+// ❌ 避免使用 any
+const data: any = {};
+
+// ✅ 使用具体类型或 unknown
+const data: unknown = {};
+
+// ❌ 避免使用 v-html（安全风险）
+// ✅ 如必须使用，确保内容可信
+
+// ❌ 避免直接操作 DOM
+document.getElementById('xxx')
+
+// ✅ 使用 ref 模板引用
+const elRef = ref<HTMLElement>();
+```
