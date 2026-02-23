@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { mockGetPortfolioById } from "./mock-data";
+import { getPortfolioById } from "@/api/portfolio";
 import type { Portfolio } from "@/types/portfolio";
 import ProjectHero from "./components/ProjectHero.vue";
 import ProjectInfo from "./components/ProjectInfo.vue";
@@ -15,14 +15,15 @@ const router = useRouter();
 const isLoading = ref(true);
 const portfolio = ref<Portfolio | null>(null);
 
-// Get ID from route
-const id = route.params.id as string;
-
 // Fetch data
 const fetchData = async () => {
+  const id = route.params.id as string;
+  if (!id) return;
+
   isLoading.value = true;
+  portfolio.value = null;
   try {
-    const res = await mockGetPortfolioById(id);
+    const res = await getPortfolioById(id);
     if (res.code === 200 && res.data) {
       portfolio.value = res.data;
     } else {
@@ -30,7 +31,7 @@ const fetchData = async () => {
       console.error("Project not found");
     }
   } catch (err) {
-    console.error(err);
+    console.error("Failed to fetch portfolio:", err);
   } finally {
     isLoading.value = false;
   }
@@ -44,6 +45,17 @@ onMounted(() => {
   fetchData();
   window.scrollTo(0, 0);
 });
+
+// Watch for route changes (when navigating between portfolio details)
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) {
+      window.scrollTo(0, 0);
+      fetchData();
+    }
+  }
+);
 </script>
 
 <template>
