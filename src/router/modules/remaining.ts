@@ -39,6 +39,20 @@ export default [
     children: [
       {
         path: "",
+        name: "Portfolio",
+        component: () => import("@/views/portfolio/index.vue"),
+        meta: {
+          title: () => {
+            const configs = getConfig();
+            const appName = configs?.APP_NAME;
+            return `${appName} - 作品展示`;
+          },
+          showLink: false,
+          keepAlive: true
+        }
+      },
+      {
+        path: "posts",
         name: "PostHome",
         component: () => import("@/views/post/post-home/index.vue"),
         meta: {
@@ -329,17 +343,7 @@ export default [
       },
       {
         path: "portfolio",
-        name: "Portfolio",
-        component: () => import("@/views/portfolio/index.vue"),
-        meta: {
-          title: () => {
-            const configs = getConfig();
-            const appName = configs?.APP_NAME;
-            return `${appName} - 作品展示`;
-          },
-          showLink: false,
-          keepAlive: true
-        }
+        redirect: "/"
       },
       {
         path: "portfolio/:id",
