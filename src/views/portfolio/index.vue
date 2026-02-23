@@ -81,28 +81,15 @@ const initPortfolioLazyLoad = () => {
 const fetchPortfolios = async (isLoadMore = false) => {
   isLoading.value = true;
   try {
-    // 强制使用 Mock 数据以展示效果
-    // const params = {
-    //   page: pagination.page,
-    //   pageSize: pagination.pageSize,
-    //   keyword: searchKeyword.value || undefined,
-    //   type: selectedType.value === "all" ? undefined : selectedType.value,
-    //   status: selectedStatus.value === "all" ? undefined : selectedStatus.value
-    // };
-    // const { data } = await getPortfolios(params);
-
-    // 直接调用 Mock 数据
-    const mockData = await mockGetPortfolios({
+    // 使用真实 API
+    const params = {
       page: pagination.page,
       pageSize: pagination.pageSize,
-      keyword: searchKeyword.value,
-      type: selectedType.value === "all" ? undefined : selectedType.value,
-      status: selectedStatus.value === "all" ? undefined : selectedStatus.value,
-      mode: selectedMode.value === "all" ? undefined : selectedMode.value,
-      language: selectedLanguage.value === "all" ? undefined : selectedLanguage.value
-    });
-    
-    const data = mockData.data;
+      keyword: searchKeyword.value || undefined,
+      project_type: selectedType.value === "all" ? undefined : selectedType.value,
+      status: selectedStatus.value === "all" ? undefined : selectedStatus.value
+    };
+    const { data } = await getPortfolios(params);
 
     if (isLoadMore) {
         portfolios.value = [...portfolios.value, ...data.list];
