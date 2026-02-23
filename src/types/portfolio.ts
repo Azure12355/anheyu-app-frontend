@@ -11,6 +11,12 @@ export enum ProjectType {
   FULL_STACK = "fullstack", // 全栈项目
   MINIPROGRAM = "miniprogram", // 小程序
   APP = "app", // APP
+  UIUX = "uiux", // UI/UX 设计
+  BACKEND = "backend", // 后端项目
+  DEVOPS = "devops", // DevOps
+  GAME = "game", // 游戏开发
+  MODEL_3D = "3d-model", // 3D 模型
+  ILLUSTRATION = "illustration", // 插画作品
   OTHER = "other" // 其他
 }
 
@@ -21,6 +27,12 @@ export const ProjectTypeLabels: Record<ProjectType, string> = {
   [ProjectType.FULL_STACK]: "全栈项目",
   [ProjectType.MINIPROGRAM]: "小程序",
   [ProjectType.APP]: "APP",
+  [ProjectType.UIUX]: "UI/UX 设计",
+  [ProjectType.BACKEND]: "后端项目",
+  [ProjectType.DEVOPS]: "DevOps",
+  [ProjectType.GAME]: "游戏开发",
+  [ProjectType.MODEL_3D]: "3D 模型",
+  [ProjectType.ILLUSTRATION]: "插画作品",
   [ProjectType.OTHER]: "其他"
 };
 
