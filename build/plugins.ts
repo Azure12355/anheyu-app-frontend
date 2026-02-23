@@ -60,7 +60,10 @@ export function getPluginsList(
         // 只在开发环境中处理
         if (process.env.NODE_ENV !== "production") {
           // 移除 {{if .customFooterHTML}}...{{end}} 块（包括换行）
-          html = html.replace(/\{\{if\s+\.customFooterHTML\}\}[\s\S]*?\{\{end\}\}/g, "");
+          html = html.replace(
+            /\{\{if\s+\.customFooterHTML\}\}[\s\S]*?\{\{end\}\}/g,
+            ""
+          );
 
           // 替换其他常见的 Go 模板变量为默认值
           const replacements: Record<string, string> = {
@@ -79,7 +82,7 @@ export function getPluginsList(
             "{{.twitterTitle}}": "ANHEYU",
             "{{.twitterDescription}}": "ANHEYU Blog",
             "{{.customHeaderHTML}}": "",
-            '{{json .initialData}}': "{}"
+            "{{json .initialData}}": "{}"
           };
 
           for (const [template, value] of Object.entries(replacements)) {

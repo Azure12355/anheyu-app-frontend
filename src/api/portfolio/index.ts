@@ -54,32 +54,25 @@ export const getPortfolioStats = () => {
  * 创建作品（管理接口）
  */
 export const createPortfolio = (data: Partial<Portfolio>) => {
-  return http.request<BaseResponse<Portfolio>>(
-    "post",
-    "/api/portfolio",
-    { data }
-  );
+  return http.request<BaseResponse<Portfolio>>("post", "/api/portfolio", {
+    data
+  });
 };
 
 /**
  * 更新作品（管理接口）
  */
 export const updatePortfolio = (id: string, data: Partial<Portfolio>) => {
-  return http.request<BaseResponse<Portfolio>>(
-    "put",
-    `/api/portfolio/${id}`,
-    { data }
-  );
+  return http.request<BaseResponse<Portfolio>>("put", `/api/portfolio/${id}`, {
+    data
+  });
 };
 
 /**
  * 删除作品（管理接口）
  */
 export const deletePortfolio = (id: string) => {
-  return http.request<BaseResponse<void>>(
-    "delete",
-    `/api/portfolio/${id}`
-  );
+  return http.request<BaseResponse<void>>("delete", `/api/portfolio/${id}`);
 };
 
 /**
@@ -89,10 +82,7 @@ export const batchDeletePortfolios = (ids: string[]) => {
   // 后端没有批量删除接口，前端逐个删除
   return Promise.all(
     ids.map(id =>
-      http.request<BaseResponse<void>>(
-        "delete",
-        `/api/portfolio/${id}`
-      )
+      http.request<BaseResponse<void>>("delete", `/api/portfolio/${id}`)
     )
   ).then(results => {
     const successCount = results.filter(r => r.code === 200).length;
@@ -107,11 +97,9 @@ export const batchDeletePortfolios = (ids: string[]) => {
  * 更新作品排序（管理接口）
  */
 export const updatePortfolioSortOrder = (sorts: Record<string, number>) => {
-  return http.request<BaseResponse<void>>(
-    "put",
-    "/api/portfolio/sort",
-    { data: sorts }
-  );
+  return http.request<BaseResponse<void>>("put", "/api/portfolio/sort", {
+    data: sorts
+  });
 };
 
 /**
@@ -119,9 +107,7 @@ export const updatePortfolioSortOrder = (sorts: Record<string, number>) => {
  */
 export const togglePortfolioFeatured = (id: string, featured: boolean) => {
   // 后端没有单独的精选接口，需要通过更新接口实现
-  return http.request<BaseResponse<Portfolio>>(
-    "put",
-    `/api/portfolio/${id}`,
-    { data: { featured } }
-  );
+  return http.request<BaseResponse<Portfolio>>("put", `/api/portfolio/${id}`, {
+    data: { featured }
+  });
 };

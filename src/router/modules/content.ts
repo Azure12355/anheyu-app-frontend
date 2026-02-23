@@ -50,7 +50,8 @@ export default [
       {
         path: "/admin/portfolio-management",
         name: "PortfolioManagement",
-        component: () => import("@/views/system/portfolio-management/index.vue"),
+        component: () =>
+          import("@/views/system/portfolio-management/index.vue"),
         meta: {
           icon: "material-symbols:work-outline",
           title: "作品管理",
