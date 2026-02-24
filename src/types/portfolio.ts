@@ -57,6 +57,9 @@ export const ProjectStatusColors: Record<ProjectStatus, string> = {
   [ProjectStatus.ARCHIVED]: "#909399" // 灰色
 };
 
+// 作品层级枚举
+export type PortfolioTier = "normal" | "recommended" | "featured";
+
 // 作品接口
 export interface Portfolio {
   id: string;
@@ -65,6 +68,7 @@ export interface Portfolio {
   cover_url: string;
   project_type: ProjectType;
   status: ProjectStatus;
+  tier?: PortfolioTier;
   technologies: string[];
   demo_url?: string;
   github_url?: string;
@@ -93,6 +97,7 @@ export interface GetPortfolioListParams {
   pageSize?: number;
   type?: ProjectType;
   status?: ProjectStatus;
+  tier?: PortfolioTier;
   keyword?: string;
   mode?: string;
 }

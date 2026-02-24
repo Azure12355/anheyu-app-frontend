@@ -21,6 +21,7 @@ import {
   ProjectTypeLabels,
   ProjectStatusLabels
 } from "@/types/portfolio";
+import type { PortfolioTier } from "@/types/portfolio";
 import ImageUpload from "@/components/ImageUpload/index.vue";
 import draggable from "vuedraggable";
 
@@ -47,6 +48,7 @@ const formData = reactive({
   cover_url: "",
   project_type: ProjectType.FRONTEND,
   status: ProjectStatus.COMPLETED,
+  tier: "normal" as PortfolioTier,
   technologies: [] as string[],
   demo_url: "",
   github_url: "",
@@ -111,6 +113,7 @@ const fetchPortfolio = async () => {
       cover_url: data.cover_url || "",
       project_type: data.project_type || ProjectType.FRONTEND,
       status: data.status || ProjectStatus.COMPLETED,
+      tier: data.tier || "normal",
       technologies: data.technologies ? [...data.technologies] : [],
       demo_url: data.demo_url || "",
       github_url: data.github_url || "",
@@ -327,6 +330,14 @@ onMounted(() => {
                   >
                     {{ item.label }}
                   </el-radio>
+                </el-radio-group>
+              </el-form-item>
+
+              <el-form-item label="项目层级" prop="tier">
+                <el-radio-group v-model="formData.tier">
+                  <el-radio label="normal">普通</el-radio>
+                  <el-radio label="recommended">推荐 ⭐</el-radio>
+                  <el-radio label="featured">精选 👑</el-radio>
                 </el-radio-group>
               </el-form-item>
 

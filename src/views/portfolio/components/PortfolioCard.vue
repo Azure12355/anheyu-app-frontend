@@ -122,7 +122,11 @@ const handleMouseLeave = () => {
     <div
       ref="cardRef"
       class="portfolio-card"
-      :class="{ 'is-hovering': isHovering }"
+      :class="{
+        'is-hovering': isHovering,
+        'tier-featured': portfolio.tier === 'featured',
+        'tier-recommended': portfolio.tier === 'recommended'
+      }"
       :style="tiltStyle"
       @mousemove="handleMouseMove"
       @mouseenter="handleMouseEnter"
@@ -507,4 +511,42 @@ const handleMouseLeave = () => {
 }
 
 .lazy-loaded { opacity: 1; }
+
+/* Tier Card Styles */
+.portfolio-card.tier-featured {
+  position: relative;
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--anzhiyu-card-bg), var(--anzhiyu-card-bg)) padding-box,
+    linear-gradient(135deg, #ffd700, #ff8c00, #ff4500) border-box;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+
+  &::after {
+    content: "👑";
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 5;
+    font-size: 24px;
+    pointer-events: none;
+  }
+}
+
+.portfolio-card.tier-recommended {
+  position: relative;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--anzhiyu-card-bg), var(--anzhiyu-card-bg)) padding-box,
+    linear-gradient(135deg, #c0c0c0, #e0e0e0, #a0a0a0) border-box;
+
+  &::after {
+    content: "⭐";
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 5;
+    font-size: 20px;
+    pointer-events: none;
+  }
+}
 </style>

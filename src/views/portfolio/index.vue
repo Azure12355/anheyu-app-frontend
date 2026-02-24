@@ -14,6 +14,7 @@ import PortfolioHero from "./components/PortfolioHero.vue";
 import PortfolioCard from "./components/PortfolioCard.vue";
 import PortfolioSkeleton from "./components/PortfolioSkeleton.vue";
 import { ProjectType, ProjectTypeLabels } from "@/types/portfolio";
+import type { PortfolioTier } from "@/types/portfolio";
 import type { Portfolio, ProjectStatus } from "@/types/portfolio";
 import { getPortfolios } from "@/api/portfolio";
 import { useSiteConfigStore } from "@/store/modules/siteConfig";
@@ -42,6 +43,7 @@ const pagination = reactive({
 // 筛选条件
 const selectedType = ref<ProjectType | "all">("all");
 const selectedStatus = ref<ProjectStatus | "all">("all");
+const selectedTier = ref<PortfolioTier | "">("");
 const selectedLanguage = ref("all");
 const searchKeyword = ref("");
 
@@ -89,7 +91,8 @@ const fetchPortfolios = async (isLoadMore = false) => {
       pageSize: pagination.pageSize,
       keyword: searchKeyword.value || undefined,
       project_type: selectedType.value === "all" ? undefined : selectedType.value,
-      status: selectedStatus.value === "all" ? undefined : selectedStatus.value
+      status: selectedStatus.value === "all" ? undefined : selectedStatus.value,
+      tier: selectedTier.value || undefined
     };
     const { data } = await getPortfolios(params);
 
@@ -142,6 +145,16 @@ const handleTypeFilter = (type: ProjectType | "all") => {
 const handleLanguageFilter = (lang: string) => {
   if (selectedLanguage.value === lang) return;
   selectedLanguage.value = lang;
+  pagination.page = 1;
+  portfolios.value = [];
+  fetchPortfolios(false);
+  scrollToCategoryTop();
+};
+
+// Handle Tier Filter
+const handleTierFilter = (tier: PortfolioTier | "") => {
+  if (selectedTier.value === tier) return;
+  selectedTier.value = tier;
   pagination.page = 1;
   portfolios.value = [];
   fetchPortfolios(false);
@@ -245,21 +258,56 @@ onMounted(() => {
             <div class="filter-row">
                 <div class="filter-label">Language</div>
                 <div class="filter-pills">
-                    <button 
-                        class="filter-pill" 
+                    <button
+                        class="filter-pill"
                         :class="{ active: selectedLanguage === 'all' }"
                         @click="handleLanguageFilter('all')"
                     >
                         All
                     </button>
-                    <button 
-                        v-for="lang in languageOptions" 
+                    <button
+                        v-for="lang in languageOptions"
                         :key="lang"
                         class="filter-pill"
                         :class="{ active: selectedLanguage === lang }"
                         @click="handleLanguageFilter(lang)"
                     >
                         {{ lang }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tier Filter -->
+            <div class="filter-row">
+                <div class="filter-label">Tier</div>
+                <div class="filter-pills">
+                    <button
+                        class="filter-pill"
+                        :class="{ active: selectedTier === '' }"
+                        @click="handleTierFilter('')"
+                    >
+                        All
+                    </button>
+                    <button
+                        class="filter-pill"
+                        :class="{ active: selectedTier === 'featured' }"
+                        @click="handleTierFilter('featured')"
+                    >
+                        Featured
+                    </button>
+                    <button
+                        class="filter-pill"
+                        :class="{ active: selectedTier === 'recommended' }"
+                        @click="handleTierFilter('recommended')"
+                    >
+                        Recommended
+                    </button>
+                    <button
+                        class="filter-pill"
+                        :class="{ active: selectedTier === 'normal' }"
+                        @click="handleTierFilter('normal')"
+                    >
+                        Normal
                     </button>
                 </div>
             </div>
