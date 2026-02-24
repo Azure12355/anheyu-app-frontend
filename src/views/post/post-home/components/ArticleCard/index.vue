@@ -39,6 +39,8 @@ const coverUrl = computed(() => {
   return props.article.cover_url || articleStore.defaultCover;
 });
 
+const isImageLoaded = ref(false);
+
 // 获取文章主色调，用于分类标签背景色
 const primaryColor = computed(() => {
   return props.article.primary_color || "var(--anzhiyu-main)";
@@ -112,8 +114,10 @@ const goToTagPage = (tagName: string) => {
       <div :title="article.title" class="w-full h-full">
         <img
           class="post_bg lazy-loading"
+          :class="{ 'is-loaded': isImageLoaded }"
           :data-src="coverUrl"
           :alt="article.title"
+          @load="isImageLoaded = true"
         />
       </div>
     </div>
@@ -301,11 +305,12 @@ const goToTagPage = (tagName: string) => {
       height: 100%;
       object-fit: cover;
       border-radius: 0;
-      transition:
-        opacity 0.6s ease,
-        transform 0.6s ease,
-        filter 0.6s ease;
       opacity: 0; // 默认透明度为 0
+      transform: scale(0.95);
+      transition:
+        opacity 0.8s ease-out,
+        transform 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+        filter 0.6s ease;
 
       // CSS 图片动画优化
       &.lazy-loading {
@@ -313,8 +318,9 @@ const goToTagPage = (tagName: string) => {
         opacity: 0;
       }
 
-      &.lazy-loaded {
+      &.is-loaded {
         opacity: 1; // 加载完成后显示
+        transform: scale(1);
       }
     }
   }

@@ -508,7 +508,8 @@ const scrollToComment = (event: Event) => {
   min-height: 25rem;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 0.5s ease-out;
+  transform: scale(0.95);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:not([src]),
   &[src=""] {
@@ -517,6 +518,7 @@ const scrollToComment = (event: Event) => {
 
   &.is-loaded {
     opacity: 0.8;
+    transform: scale(1);
   }
 
   &::after {

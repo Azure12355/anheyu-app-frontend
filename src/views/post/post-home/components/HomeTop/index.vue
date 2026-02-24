@@ -49,6 +49,11 @@ const handleMoreClick = (event: MouseEvent) => {
   }
 };
 
+const loadedRecommendImages = ref<Record<string, boolean>>({});
+const onRecommendImageLoad = (id: string) => {
+  loadedRecommendImages.value = { ...loadedRecommendImages.value, [id]: true };
+};
+
 const expandTopGroup = () => {
   isTopGroupExpanded.value = true;
 };
@@ -247,14 +252,18 @@ const creativityPairs = computed(() => {
             <img
               v-if="article.cover_url"
               class="post_bg"
+              :class="{ 'is-loaded': loadedRecommendImages[article.id] }"
               :src="article.cover_url"
               :alt="article.title"
+              @load="onRecommendImageLoad(article.id)"
             />
             <img
               v-else
               class="post_bg"
+              :class="{ 'is-loaded': loadedRecommendImages[article.id] }"
               :src="articleStore.defaultCover"
               :alt="article.title"
+              @load="onRecommendImageLoad(article.id)"
             />
           </div>
           <div class="recent-post-info">
@@ -746,6 +755,14 @@ const creativityPairs = computed(() => {
   height: 100%;
   background: var(--anzhiyu-secondbg);
   border-radius: 0;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.is-loaded {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .topGroup .recent-post-item .recent-post-info {

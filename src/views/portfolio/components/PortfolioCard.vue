@@ -58,6 +58,8 @@ const onImageLoad = (e: Event) => {
   } catch (error) {
     // 如果因跨域限制(Tainted Canvas)导致报错，则静默失败并使用默认的红黄蓝配色
     console.warn("Color extraction failed or tainted canvas, using default primary colors.");
+  } finally {
+    isImageLoaded.value = true;
   }
 };
 
@@ -87,6 +89,7 @@ const cardRef = ref<HTMLElement | null>(null);
 const tiltStyle = ref({});
 const cursorStyle = ref({ opacity: 0, left: '0px', top: '0px' });
 const isHovering = ref(false);
+const isImageLoaded = ref(false);
 
 const handleMouseMove = (e: MouseEvent) => {
   if (!cardRef.value) return;
@@ -175,6 +178,7 @@ const handleMouseLeave = () => {
       <div class="card-cover">
          <img
             class="cover-image lazy-loading"
+            :class="{ 'is-loaded': isImageLoaded }"
             :data-src="coverUrl"
             :alt="portfolio.title"
             crossorigin="anonymous"
@@ -347,11 +351,14 @@ const handleMouseLeave = () => {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
     transform-style: preserve-3d;
     
-    &.lazy-loading {
-        opacity: 0;
+    &.is-loaded {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 

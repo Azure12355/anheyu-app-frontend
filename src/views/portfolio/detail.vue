@@ -13,6 +13,7 @@ defineOptions({
 const route = useRoute();
 const router = useRouter();
 const isLoading = ref(true);
+const isImageLoaded = ref(false);
 const portfolio = ref<Portfolio | null>(null);
 
 // Fetch data
@@ -78,7 +79,13 @@ watch(
               <!-- Left: Image Showcase -->
               <div class="showcase-column">
                   <div class="main-image-wrapper">
-                      <img :src="portfolio.cover_url" :alt="portfolio.title" class="main-image" />
+                      <img 
+                        :src="portfolio.cover_url" 
+                        :alt="portfolio.title" 
+                        class="main-image" 
+                        :class="{'is-loaded': isImageLoaded}"
+                        @load="isImageLoaded = true"
+                      />
                       <div class="image-reflection"></div>
                   </div>
                   
@@ -190,10 +197,18 @@ watch(
     .main-image {
         width: 100%;
         display: block;
-        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         
+        &.is-loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
         &:hover {
             transform: scale(1.03);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
     }
 }
