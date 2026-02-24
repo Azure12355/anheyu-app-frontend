@@ -143,7 +143,9 @@ watch(
 
     // 只有在路由参数变化时才清空列表（如切换分类/标签/分页）
     articles.value = [];
-    pagination.page = route.params.id ? Number(route.params.id) : 1;
+    // 安全地转换 page 参数，确保是有效数字
+    const pageParam = route.params.id ? Number(route.params.id) : 1;
+    pagination.page = isNaN(pageParam) ? 1 : pageParam;
     fetchData();
   },
   { immediate: true }
