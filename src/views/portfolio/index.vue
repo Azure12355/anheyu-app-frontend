@@ -42,7 +42,6 @@ const pagination = reactive({
 // 筛选条件
 const selectedType = ref<ProjectType | "all">("all");
 const selectedStatus = ref<ProjectStatus | "all">("all");
-const selectedMode = ref<"light" | "dark" | "all">("all");
 const selectedLanguage = ref("all");
 const searchKeyword = ref("");
 
@@ -118,16 +117,6 @@ const handleTypeFilter = (type: ProjectType | "all") => {
   selectedType.value = type;
   pagination.page = 1;
   // Reset list
-  portfolios.value = [];
-  fetchPortfolios(false);
-};
-
-// 处理模式筛选
-const handleModeFilter = (mode: "light" | "dark" | "all") => {
-  selectedMode.value = mode;
-  pagination.page = 1;
-  portfolios.value = [];
-  pagination.page = 1;
   portfolios.value = [];
   fetchPortfolios(false);
 };
@@ -255,34 +244,7 @@ onMounted(() => {
                     </button>
                 </div>
             </div>
-
-            <!-- Mode Filter -->
-            <div class="filter-row">
-                <div class="filter-label">Layout Mode</div>
-                <div class="filter-pills">
-                    <button 
-                        class="filter-pill" 
-                        :class="{ active: selectedMode === 'all' }"
-                        @click="handleModeFilter('all')"
-                    >
-                        All
-                    </button>
-                    <button 
-                        class="filter-pill" 
-                        :class="{ active: selectedMode === 'light' }"
-                        @click="handleModeFilter('light')"
-                    >
-                        Light
-                    </button>
-                    <button 
-                        class="filter-pill" 
-                        :class="{ active: selectedMode === 'dark' }"
-                        @click="handleModeFilter('dark')"
-                    >
-                        Dark
-                    </button>
-                </div>
-            </div>
+          </div>
         </div>
       </aside>
 
@@ -322,22 +284,20 @@ onMounted(() => {
 
         <!-- Load More / Footer Area -->
         <div v-if="portfolios.length > 0" class="load-more-container">
-            <!-- Load More Button -->
-            <button 
-              v-if="hasMore" 
-              class="btn-load-more" 
-              :disabled="isLoading"
-              @click="handleLoadMore"
-            >
-              {{ isLoading ? 'Loading...' : 'Load More' }}
-              <i v-if="!isLoading" class="anzhiyufont anzhiyu-icon-angle-down"></i>
-            </button>
-            
-            <div class="footer-stats">
-                <span class="stat-highlight">20 categories</span> • 
-                <span class="stat-highlight-orange">26 light</span> • 
-                <span class="stat-highlight-green">13 dark</span>
-            </div>
+          <!-- Load More Button -->
+          <button
+            v-if="hasMore"
+            class="btn-load-more"
+            :disabled="isLoading"
+            @click="handleLoadMore"
+          >
+            {{ isLoading ? "Loading..." : "Load More" }}
+            <i v-if="!isLoading" class="anzhiyufont anzhiyu-icon-angle-down" />
+          </button>
+
+          <div class="footer-stats">
+            <span class="stat-highlight">20 categories</span>
+          </div>
         </div>
       </main>
     </div>
@@ -705,15 +665,15 @@ onMounted(() => {
 }
 
 .footer-stats {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.85rem;
-    color: var(--anzhiyu-secondtext);
-    opacity: 0.7;
-    margin-top: 1rem;
-    
-    .stat-highlight { color: var(--anzhiyu-theme); }
-    .stat-highlight-orange { color: #f97316; }
-    .stat-highlight-green { color: #10b981; }
+  margin-top: 1rem;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.85rem;
+  color: var(--anzhiyu-secondtext);
+  opacity: 0.7;
+
+  .stat-highlight {
+    color: var(--anzhiyu-theme);
+  }
 }
 
 :deep(.el-empty) {
