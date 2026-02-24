@@ -230,6 +230,41 @@ onMounted(() => {
             </p>
         </div>
 
+        <!-- Tier Filter -->
+            <div class="filter-row">
+                <div class="filter-label">Tier</div>
+                <div class="filter-pills">
+                    <button
+                        class="filter-pill"
+                        :class="{ active: selectedTier === '' }"
+                        @click="handleTierFilter('')"
+                    >
+                        All
+                    </button>
+                    <button
+                        class="filter-pill"
+                        :class="{ active: selectedTier === 'featured' }"
+                        @click="handleTierFilter('featured')"
+                    >
+                         精选项目
+                    </button>
+                    <button
+                        class="filter-pill"
+                        :class="{ active: selectedTier === 'recommended' }"
+                        @click="handleTierFilter('recommended')"
+                    >
+                        推荐项目
+                    </button>
+                    <button
+                        class="filter-pill"
+                        :class="{ active: selectedTier === 'normal' }"
+                        @click="handleTierFilter('normal')"
+                    >
+                        普通项目
+                    </button>
+                </div>
+            </div>
+
         <!-- Filter Bar -->
         <div class="filter-section">
             <div class="filter-row">
@@ -277,40 +312,7 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Tier Filter -->
-            <div class="filter-row">
-                <div class="filter-label">Tier</div>
-                <div class="filter-pills">
-                    <button
-                        class="filter-pill"
-                        :class="{ active: selectedTier === '' }"
-                        @click="handleTierFilter('')"
-                    >
-                        All
-                    </button>
-                    <button
-                        class="filter-pill"
-                        :class="{ active: selectedTier === 'featured' }"
-                        @click="handleTierFilter('featured')"
-                    >
-                        Featured
-                    </button>
-                    <button
-                        class="filter-pill"
-                        :class="{ active: selectedTier === 'recommended' }"
-                        @click="handleTierFilter('recommended')"
-                    >
-                        Recommended
-                    </button>
-                    <button
-                        class="filter-pill"
-                        :class="{ active: selectedTier === 'normal' }"
-                        @click="handleTierFilter('normal')"
-                    >
-                        Normal
-                    </button>
-                </div>
-            </div>
+            
         </div>
       </aside>
 

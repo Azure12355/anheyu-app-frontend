@@ -164,12 +164,12 @@ const handleMouseLeave = () => {
       <!-- Tier Badges -->
       <div v-if="portfolio.tier === 'featured'" class="tier-badge featured-badge">
         <IconifyIconOnline icon="ri:vip-diamond-fill" class="tier-icon" />
-        <span class="badge-text">Featured</span>
+        <span class="badge-text">精选项目</span>
         <div class="badge-shimmer"></div>
       </div>
       <div v-else-if="portfolio.tier === 'recommended'" class="tier-badge recommended-badge">
         <IconifyIconOnline icon="ri:medal-2-fill" class="tier-icon" />
-        <span class="badge-text">Recommended</span>
+        <span class="badge-text">推荐项目</span>
         <div class="badge-shimmer"></div>
       </div>
 
