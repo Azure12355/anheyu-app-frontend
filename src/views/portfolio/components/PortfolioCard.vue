@@ -27,18 +27,39 @@ const typeLabel = computed(() => {
   return ProjectTypeLabels[props.portfolio.project_type];
 });
 
-// 模拟颜色圆点 (基于ID生成固定颜色)
-const mockColors = computed(() => {
-    const colors = [
-        ['#3b82f6', '#8b5cf6', '#10b981'],
-        ['#f59e0b', '#ef4444', '#3b82f6'],
-        ['#10b981', '#3b82f6', '#6366f1'],
-        ['#ec4899', '#8b5cf6', '#f59e0b'],
+// 动态提取颜色 (默认红黄蓝)
+const defaultThemeColors = ['#ef4444', '#f59e0b', '#3b82f6'];
+const mockColors = ref<string[]>([...defaultThemeColors]);
+
+// 当图片加载时尝试提取主要颜色
+const onImageLoad = (e: Event) => {
+  const img = e.target as HTMLImageElement;
+  try {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+    
+    // 将图片绘制到微缩的 10x10 canvas 上，通过缩放平滑像素点来实现简单的颜色采样
+    canvas.width = 10;
+    canvas.height = 10;
+    ctx.drawImage(img, 0, 0, 10, 10);
+    
+    const extractHex = (x: number, y: number) => {
+        const data = ctx.getImageData(x, y, 1, 1).data;
+        return '#' + [data[0], data[1], data[2]].map(v => v.toString(16).padStart(2, '0')).join('');
+    };
+
+    // 从图像的不同区域采样三个颜色
+    mockColors.value = [
+      extractHex(2, 2), // 左上方块
+      extractHex(5, 5), // 中心方块
+      extractHex(8, 8)  // 右下方块
     ];
-    // Simple hash from string id
-    const index = props.portfolio.id.charCodeAt(0) % colors.length;
-    return colors[index];
-});
+  } catch (error) {
+    // 如果因跨域限制(Tainted Canvas)导致报错，则静默失败并使用默认的红黄蓝配色
+    console.warn("Color extraction failed or tainted canvas, using default primary colors.");
+  }
+};
 
 // 处理打开链接
 const openLink = (url?: string) => {
@@ -156,6 +177,8 @@ const handleMouseLeave = () => {
             class="cover-image lazy-loading"
             :data-src="coverUrl"
             :alt="portfolio.title"
+            crossorigin="anonymous"
+            @load="onImageLoad"
         />
         <!-- 模拟 Light 标签 (视觉装饰) -->
         <!-- Mode Badge -->
