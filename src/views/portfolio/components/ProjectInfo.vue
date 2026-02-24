@@ -15,6 +15,12 @@ const props = defineProps<{
 const hasRichInfo = computed(() => {
     return props.portfolio.overview || props.portfolio.challenge || props.portfolio.gallery_images?.length;
 });
+
+// Handle image load for animation
+const handleImageLoad = (e: Event) => {
+  const target = e.target as HTMLImageElement;
+  target.classList.add('loaded');
+};
 </script>
 
 <template>
@@ -62,18 +68,31 @@ const hasRichInfo = computed(() => {
     </div>
 
     <!-- Image Gallery -->
-    <div class="project-gallery" v-if="portfolio.gallery_images && portfolio.gallery_images.length > 0">
-        <h2 class="section-heading">视觉画廊</h2>
-        <div class="gallery-grid">
-            <div 
-                v-for="(img, idx) in portfolio.gallery_images" 
-                :key="idx" 
-                class="gallery-item"
-                :class="{'large-item': idx === 0 || idx === 3}"
-            >
-                <img :src="img" :alt="`${portfolio.title} Image ${idx+1}`" loading="lazy" />
+    <div
+      v-if="portfolio.gallery_images && portfolio.gallery_images.length > 0"
+      class="project-gallery"
+    >
+      <h2 class="section-heading">视觉画廊</h2>
+      <div class="gallery-masonry">
+        <div
+          v-for="(img, idx) in portfolio.gallery_images"
+          :key="idx"
+          class="gallery-frame"
+          :data-index="idx"
+        >
+          <div class="frame-inner">
+            <img
+              :src="img"
+              :alt="`${portfolio.title} Image ${idx + 1}`"
+              loading="lazy"
+              @load="handleImageLoad"
+            />
+            <div class="frame-overlay">
+              <span class="image-number">{{ String(idx + 1).padStart(2, '0') }}</span>
             </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Fallback Stats if no rich data (Original functionality preserved) -->
@@ -202,58 +221,128 @@ const hasRichInfo = computed(() => {
     }
 }
 
-/* --- Image Gallery (Bento Box style) --- */
+/* --- Image Gallery (Artistic Masonry style) --- */
 .project-gallery {
-    margin-top: 2rem;
+  margin-top: 3rem;
 }
 
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 300px;
-    gap: 1.5rem;
-    
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        grid-auto-rows: 250px;
-    }
+.gallery-masonry {
+  --gap-size: 1.5rem;
+  --frame-radius: 16px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-size);
+  align-items: flex-start;
+
+  @media (width <= 768px) {
+    --gap-size: 1rem;
+  }
 }
 
-.gallery-item {
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    position: relative;
-    
-    &.large-item {
-        grid-column: span 2;
-        grid-row: span 2;
-        
-        @media (max-width: 768px) {
-            grid-column: span 1;
-            grid-row: span 1;
-        }
+.gallery-frame {
+  --frame-width: calc((100% - var(--gap-size)) / 2);
+
+  width: var(--frame-width);
+  break-inside: avoid;
+  page-break-inside: avoid;
+
+  @media (width <= 768px) {
+    --frame-width: 100%;
+  }
+
+  // Create varied heights for artistic look
+  &:nth-child(3n+1) .frame-inner {
+    padding-top: 100%; // Square
+  }
+
+  &:nth-child(3n+2) .frame-inner {
+    padding-top: 75%; // 4:3 landscape
+  }
+
+  &:nth-child(3n+3) .frame-inner {
+    padding-top: 133.33%; // 3:4 portrait
+  }
+
+  &:first-child .frame-inner {
+    padding-top: 56.25%; // 16:9 - hero image
+  }
+
+  @media (width <= 768px) {
+    &:nth-child(3n+1) .frame-inner,
+    &:nth-child(3n+2) .frame-inner,
+    &:nth-child(3n+3) .frame-inner {
+      padding-top: 75%; // Uniform 4:3 on mobile
     }
-    
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-        
-        &:hover {
-            transform: scale(1.05);
-        }
+  }
+}
+
+.frame-inner {
+  position: relative;
+  width: 100%;
+  background: var(--anzhiyu-card-bg);
+  border-radius: var(--frame-radius);
+  overflow: hidden;
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 8%),
+    0 0 0 1px rgb(255 255 255 / 5%) inset;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    box-shadow:
+      0 8px 30px rgb(0 0 0 / 12%),
+      0 0 0 1px var(--anzhiyu-theme) inset;
+    transform: translateY(-4px);
+  }
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    padding: 0.75rem;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &.loaded {
+      opacity: 1;
+      transform: scale(1);
     }
-    
-    &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 20px;
-        pointer-events: none;
-    }
+  }
+}
+
+.frame-overlay {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  font-family: "Playfair Display", serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--anzhiyu-card-bg);
+  background: var(--anzhiyu-theme);
+  border-radius: 99px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 2;
+
+  .frame-inner:hover & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.image-number {
+  letter-spacing: 1px;
 }
 
 /* --- Legacy Stats --- */
