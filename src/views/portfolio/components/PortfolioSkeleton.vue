@@ -8,140 +8,185 @@ defineOptions({
 
 const props = defineProps<{
   isDoubleColumn?: boolean;
+  animationOrder?: number;
 }>();
 
 const siteConfigStore = useSiteConfigStore();
-const isDoubleColumn = computed(
-  () =>
-    props.isDoubleColumn ??
-    siteConfigStore.getSiteConfig?.post?.default?.double_column ??
-    true
-);
+// Note: We ignore isDoubleColumn here visually because index.vue uses CSS grid (.card-grid).
 </script>
 
 <template>
-  <div class="portfolio-skeleton" :class="{ 'three-column': isDoubleColumn }">
-    <div class="skeleton-cover">
-      <div class="skeleton-shine" />
-    </div>
-    <div class="skeleton-content">
-      <div class="skeleton-tags">
-        <div class="skeleton-tag" />
-        <div class="skeleton-tag short" />
+  <div 
+    class="portfolio-skeleton-wrapper"
+    :style="{ '--animation-order': animationOrder || 0 }"
+  >
+    <div class="portfolio-skeleton">
+      <!-- Image Area -->
+      <div class="skeleton-cover-wrapper">
+        <div class="skeleton-cover">
+          <div class="skeleton-shimmer" />
+        </div>
       </div>
-      <div class="skeleton-title" />
-      <div class="skeleton-description" />
-      <div class="skeleton-description short" />
-      <div class="skeleton-meta">
-        <div class="skeleton-tech" />
-        <div class="skeleton-tech" />
-        <div class="skeleton-tech short" />
+
+      <!-- Content Area -->
+      <div class="skeleton-content">
+        <!-- Tags -->
+        <div class="skeleton-tag-row">
+          <div class="skeleton-tag" />
+        </div>
+
+        <!-- Title -->
+        <div class="skeleton-title" />
+
+        <!-- Description -->
+        <div class="skeleton-description">
+          <div class="skeleton-line" />
+          <div class="skeleton-line short" />
+        </div>
+
+        <!-- Footer -->
+        <div class="skeleton-footer">
+          <div class="skeleton-footer-label" />
+          <div class="skeleton-color-dots">
+            <div class="skeleton-dot" />
+            <div class="skeleton-dot" />
+            <div class="skeleton-dot" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmerEffect {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.portfolio-skeleton-wrapper {
+  position: relative;
+  width: 100%;
+  opacity: 0;
+  animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation-delay: calc(var(--animation-order, 0) * 0.1s);
+}
+
 .portfolio-skeleton {
+  position: relative;
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  margin: 1rem 0;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background: var(--anzhiyu-card-bg);
-  border: var(--style-border);
-  border-radius: 12px;
+  border: 1px solid rgb(128 128 128 / 8%);
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgb(0 0 0 / 2%);
+}
 
-  &.three-column {
-    flex-direction: column;
-    width: calc(33.333% - 0.416rem);
-    height: auto;
+/* Generalized Shimmer for elements */
+.skeleton-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 80%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 2000px 100%;
+  animation: shimmerEffect 2.5s infinite linear;
+}
 
-    .skeleton-cover {
-      width: 100%;
-      height: 200px;
-      border-radius: 8px 8px 0 0;
-    }
+/* Image Section */
+.skeleton-cover-wrapper {
+  padding: 12px 12px 0;
+}
 
-    .skeleton-content {
-      width: 100%;
-      padding: 16px 20px;
-    }
-  }
+.skeleton-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+  background: var(--anzhiyu-secondbg);
+  border-radius: 16px;
+}
 
-  .skeleton-cover {
-    position: relative;
-    flex-shrink: 0;
-    width: 45%;
-    min-height: 180px;
-    overflow: hidden;
-    background: var(--anzhiyu-secondbg);
+/* Content Section */
+.skeleton-content {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  padding: 24px;
+}
 
-    .skeleton-shine {
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 50%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.1),
-        transparent
-      );
-      animation: shine 1.5s infinite;
-    }
-  }
+.skeleton-tag-row {
+  margin-bottom: 12px;
+}
 
-  .skeleton-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    width: 55%;
-    padding: 2rem;
-  }
+.skeleton-tag {
+  display: inline-block;
+  width: 80px;
+  height: 24px;
+  background: var(--anzhiyu-secondbg);
+  border-radius: 100px;
+  animation: pulse 2s infinite ease-in-out;
+}
 
-  .skeleton-tags {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 0.5rem;
-  }
+.skeleton-title {
+  width: 70%;
+  height: 28px;
+  margin-bottom: 12px;
+  background: var(--anzhiyu-secondbg);
+  border-radius: 8px;
+  animation: pulse 2s infinite ease-in-out;
+  animation-delay: 0.1s;
+}
 
-  .skeleton-tag {
-    height: 24px;
-    width: 60px;
-    background: var(--anzhiyu-secondbg);
-    border-radius: 20px;
-    animation: pulse 1.5s ease-in-out infinite;
+.skeleton-description {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
 
-    &.short {
-      width: 45px;
-    }
-  }
-
-  .skeleton-title {
-    height: 28px;
-    width: 70%;
-    margin-bottom: 1rem;
-    background: var(--anzhiyu-secondbg);
-    border-radius: 4px;
-    animation: pulse 1.5s ease-in-out infinite;
-    animation-delay: 0.1s;
-  }
-
-  .skeleton-description {
-    height: 16px;
+  .skeleton-line {
     width: 100%;
-    margin-bottom: 0.5rem;
+    height: 18px;
     background: var(--anzhiyu-secondbg);
     border-radius: 4px;
-    animation: pulse 1.5s ease-in-out infinite;
+    animation: pulse 2s infinite ease-in-out;
     animation-delay: 0.2s;
 
     &.short {
       width: 60%;
     }
   }
+<<<<<<< HEAD
 
   .skeleton-meta {
     display: flex;
@@ -182,26 +227,45 @@ const isDoubleColumn = computed(
   }
 }
 
-@media (width <= 768px) {
-  .portfolio-skeleton,
-  .portfolio-skeleton.three-column {
-    flex-direction: column;
-    width: 100%;
+.skeleton-footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
 
-    .skeleton-cover {
-      width: 100%;
-      height: 200px;
-    }
+.skeleton-footer-label {
+  width: 50px;
+  height: 16px;
+  background: var(--anzhiyu-secondbg);
+  border-radius: 4px;
+  animation: pulse 2s infinite ease-in-out;
+  animation-delay: 0.3s;
+}
 
-    .skeleton-content {
-      width: 100%;
-      padding: 1rem;
-    }
+.skeleton-color-dots {
+  display: flex;
+  gap: 6px;
+}
 
-    .skeleton-title {
-      height: 24px;
-      width: 80%;
-    }
+.skeleton-dot {
+  width: 20px;
+  height: 20px;
+  background: var(--anzhiyu-secondbg);
+  border-radius: 50%;
+  animation: pulse 2s infinite ease-in-out;
+  animation-delay: 0.4s;
+}
+
+[data-theme='dark'] {
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.02) 20%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0.02) 80%,
+      rgba(255, 255, 255, 0) 100%
+    );
   }
 }
 </style>

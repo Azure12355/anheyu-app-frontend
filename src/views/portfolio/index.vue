@@ -45,10 +45,6 @@ const selectedStatus = ref<ProjectStatus | "all">("all");
 const selectedLanguage = ref("all");
 const searchKeyword = ref("");
 
-// 分类切换动画状态
-const isTransitioning = ref(false);
-const gridAnimationKey = ref(0);
-
 // Filter Options
 const languageOptions = [
   "TypeScript",
@@ -116,75 +112,40 @@ const fetchPortfolios = async (isLoadMore = false) => {
   }
 };
 
-// 丝滑滚动到分类区域
-const scrollToFilters = () => {
-  const sidebar = document.querySelector(".portfolio-sidebar") as HTMLElement;
-  if (sidebar) {
-    sidebar.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
+// 丝滑滚动回分类区顶部
+const scrollToCategoryTop = () => {
+  const container = document.querySelector(".portfolio-container");
+  if (container) {
+    const headerOffset = 80; // 适当的偏移量，防止被固定导航栏遮挡
+    const elementPosition = container.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth"
     });
   }
 };
 
-// 处理类型筛选（带滚动效果和动画）
+// 处理类型筛选
 const handleTypeFilter = (type: ProjectType | "all") => {
   if (selectedType.value === type) return;
-
-  isTransitioning.value = true;
-
-  // 先淡出当前内容
-  const gridElement = document.querySelector(".card-grid") as HTMLElement;
-  if (gridElement) {
-    gridElement.style.opacity = "0";
-    gridElement.style.transform = "translateY(10px)";
-  }
-
-  setTimeout(() => {
-    selectedType.value = type;
-    pagination.page = 1;
-    portfolios.value = [];
-    gridAnimationKey.value++;
-
-    // 滚动回分类区域
-    scrollToFilters();
-
-    // 加载新数据
-    fetchPortfolios(false).then(() => {
-      // 数据加载完成后重置过渡状态
-      setTimeout(() => {
-        isTransitioning.value = false;
-      }, 100);
-    });
-  }, 200);
+  selectedType.value = type;
+  pagination.page = 1;
+  // Reset list
+  portfolios.value = [];
+  fetchPortfolios(false);
+  scrollToCategoryTop();
 };
 
-// Handle Language Filter（带滚动效果和动画）
+// Handle Language Filter
 const handleLanguageFilter = (lang: string) => {
   if (selectedLanguage.value === lang) return;
-
-  isTransitioning.value = true;
-
-  const gridElement = document.querySelector(".card-grid") as HTMLElement;
-  if (gridElement) {
-    gridElement.style.opacity = "0";
-    gridElement.style.transform = "translateY(10px)";
-  }
-
-  setTimeout(() => {
-    selectedLanguage.value = lang;
-    pagination.page = 1;
-    portfolios.value = [];
-    gridAnimationKey.value++;
-
-    scrollToFilters();
-
-    fetchPortfolios(false).then(() => {
-      setTimeout(() => {
-        isTransitioning.value = false;
-      }, 100);
-    });
-  }, 200);
+  selectedLanguage.value = lang;
+  pagination.page = 1;
+  portfolios.value = [];
+  fetchPortfolios(false);
+  scrollToCategoryTop();
 };
 
 
@@ -316,18 +277,14 @@ onMounted(() => {
               <PortfolioSkeleton
                 v-for="i in 6"
                 :key="'skeleton-' + i"
-                :is-double-column="true"
+                :animation-order="i"
               />
             </div>
           </template>
 
           <!-- 作品卡片 -->
           <template v-else-if="portfolios.length > 0">
-            <div
-              :key="gridAnimationKey"
-              class="card-grid"
-              :class="{ 'is-transitioning': isTransitioning }"
-            >
+            <div class="card-grid">
               <PortfolioCard
                   v-for="(portfolio, index) in portfolios"
                   :key="portfolio.id"
@@ -649,8 +606,7 @@ onMounted(() => {
 }
 
 .filter-pill {
-  position: relative;
-  padding: 10px 20px;
+  padding: 8px 18px;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
@@ -659,23 +615,7 @@ onMounted(() => {
   background: transparent;
   border: 1px solid rgb(128 128 128 / 20%);
   border-radius: 100px;
-  overflow: hidden;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* 波纹效果 */
-  &::before {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 0;
-    width: 0;
-    height: 0;
-    content: "";
-    background: rgb(255 255 255 / 30%);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.6s ease, height 0.6s ease;
-  }
 
   &::after {
     display: none;
@@ -683,19 +623,9 @@ onMounted(() => {
 
   &:hover {
     color: var(--anzhiyu-theme);
-    background: rgba(var(--anzhiyu-theme-rgb), 0.08);
+    background: rgba(var(--anzhiyu-theme-rgb), 0.05);
     border-color: var(--anzhiyu-theme);
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 4px 12px rgba(var(--anzhiyu-theme-rgb), 0.15);
-  }
-
-  &:active {
-    transform: translateY(-1px) scale(0.98);
-
-    &::before {
-      width: 300px;
-      height: 300px;
-    }
+    transform: translateY(-2px);
   }
 
   &.active {
@@ -703,35 +633,7 @@ onMounted(() => {
     color: white;
     background: var(--anzhiyu-theme);
     border-color: var(--anzhiyu-theme);
-    box-shadow:
-      0 4px 12px rgba(var(--anzhiyu-theme-rgb), 0.35),
-      0 0 0 0 rgba(var(--anzhiyu-theme-rgb), 0.4);
-    animation: activePulse 2s ease-in-out infinite;
-
-    &::before {
-      display: none;
-    }
-  }
-}
-
-/* 激活状态的脉冲动画 */
-@keyframes activePulse {
-  0% {
-    box-shadow:
-      0 4px 12px rgba(var(--anzhiyu-theme-rgb), 0.35),
-      0 0 0 0 rgba(var(--anzhiyu-theme-rgb), 0.4);
-  }
-
-  50% {
-    box-shadow:
-      0 4px 12px rgba(var(--anzhiyu-theme-rgb), 0.35),
-      0 0 0 8px rgba(var(--anzhiyu-theme-rgb), 0);
-  }
-
-  100% {
-    box-shadow:
-      0 4px 12px rgba(var(--anzhiyu-theme-rgb), 0.35),
-      0 0 0 0 rgba(var(--anzhiyu-theme-rgb), 0);
+    box-shadow: 0 4px 12px rgba(var(--anzhiyu-theme-rgb), 0.3);
   }
 }
 
@@ -742,31 +644,6 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-
-  /* 卡片入场动画 */
-  &:not(.is-transitioning) {
-    animation: gridFadeIn 0.6s ease-out;
-  }
-
-  &.is-transitioning {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-}
-
-@keyframes gridFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Load More Section */

@@ -52,17 +52,11 @@ const isDoubleColumn = computed(() => postConfig.value?.double_column ?? true);
 
 const articles = ref<Article[]>([]);
 const isLoading = ref(false);
-const isRefreshing = ref(false); // 用于区分首次加载和刷新
 const pagination = reactive({
   page: 1,
   pageSize: postConfig.value?.page_size || 12,
   total: 0
 });
-
-// 用于计算卡片动画延迟
-const cardAnimationDelay = (index: number) => {
-  return (index % 10) * 50; // 每批10个，每个延迟50ms
-};
 
 // 统一管理懒加载 Observer（避免每个 ArticleCard 重复创建）
 let lazyLoadObserver: IntersectionObserver | null = null;
@@ -97,10 +91,6 @@ const newestArticleId = computed(() => {
 const showPagination = computed(() => pagination.total > pagination.pageSize);
 
 const fetchData = async () => {
-  // 如果不是首次加载，标记为刷新状态
-  if (articles.value.length > 0) {
-    isRefreshing.value = true;
-  }
   isLoading.value = true;
   try {
     const params: GetArticleListParams = {
@@ -133,7 +123,6 @@ const fetchData = async () => {
     articles.value = [];
   } finally {
     isLoading.value = false;
-    isRefreshing.value = false;
   }
 };
 
@@ -224,20 +213,13 @@ onUnmounted(() => {
             />
             <!-- 卡片视图 -->
             <template v-else>
-              <TransitionGroup
-                name="card-list"
-                tag="div"
-                class="card-list-container"
-              >
-                <ArticleCard
-                  v-for="(article, index) in articles"
-                  :key="article.id + (isRefreshing ? '-refresh' : '')"
-                  :article="article"
-                  :is-double-column="isDoubleColumn"
-                  :is-newest="article.id === newestArticleId"
-                  :style="{ '--card-delay': `${cardAnimationDelay(index)}ms` }"
-                />
-              </TransitionGroup>
+              <ArticleCard
+                v-for="article in articles"
+                :key="article.id"
+                :article="article"
+                :is-double-column="isDoubleColumn"
+                :is-newest="article.id === newestArticleId"
+              />
             </template>
           </template>
 
@@ -302,38 +284,6 @@ onUnmounted(() => {
     flex-wrap: wrap;
     gap: 0.625rem;
     justify-content: space-between;
-  }
-}
-
-// 卡片列表容器
-.card-list-container {
-  display: contents;
-}
-
-// 卡片过渡动画
-.card-list-enter-active {
-  animation: card-fade-in 0.5s ease-out backwards;
-  animation-delay: var(--card-delay, 0ms);
-}
-
-.card-list-leave-active {
-  transition: all 0.3s ease;
-}
-
-.card-list-leave-to {
-  opacity: 0;
-  transform: translateY(20px) scale(0.95);
-}
-
-// 卡片进入动画
-@keyframes card-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
