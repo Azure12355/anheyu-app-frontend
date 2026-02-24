@@ -5,7 +5,6 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import {
   ArrowLeft,
   Check,
-  Upload,
   Delete,
   Plus
 } from "@element-plus/icons-vue";
@@ -14,6 +13,7 @@ import {
   createPortfolio,
   updatePortfolio
 } from "@/api/portfolio";
+import { uploadArticleImage } from "@/api/post";
 import type { Portfolio } from "@/types/portfolio";
 import {
   ProjectType,
@@ -21,6 +21,7 @@ import {
   ProjectTypeLabels,
   ProjectStatusLabels
 } from "@/types/portfolio";
+import ImageUpload from "@/components/ImageUpload/index.vue";
 import draggable from "vuedraggable";
 
 defineOptions({
@@ -51,7 +52,7 @@ const formData = reactive({
   github_url: "",
   featured: false,
   sort_order: 0,
-  // 新增详情字段
+  // 详情字段
   overview: "",
   role: "",
   duration: "",
@@ -68,8 +69,9 @@ const techInputValue = ref("");
 // 表单验证规则
 const rules = {
   title: [{ required: true, message: "请输入作品标题", trigger: "blur" }],
-  description: [{ required: true, message: "请输入作品描述", trigger: "blur" }],
-  cover_url: [{ required: true, message: "请输入封面图URL", trigger: "blur" }],
+  description: [
+    { required: true, message: "请输入作品描述", trigger: "blur" }
+  ],
   project_type: [
     { required: true, message: "请选择项目分类", trigger: "change" }
   ]
@@ -91,11 +93,8 @@ const statusOptions = Object.entries(ProjectStatusLabels).map(
   })
 );
 
-// 上传配置
-const uploadAction = computed(() => "/api/file/upload");
-const uploadHeaders = computed(() => ({
-  Authorization: `Bearer ${localStorage.getItem("token")}`
-}));
+// 图片上传状态
+const galleryUploading = ref(false);
 
 // 获取作品详情
 const fetchPortfolio = async () => {
@@ -117,7 +116,6 @@ const fetchPortfolio = async () => {
       github_url: data.github_url || "",
       featured: data.featured || false,
       sort_order: data.sort_order || 0,
-      // 新增详情字段
       overview: data.overview || "",
       role: data.role || "",
       duration: data.duration || "",
@@ -163,11 +161,15 @@ const handleSave = async () => {
 
 // 取消编辑
 const handleCancel = () => {
-  ElMessageBox.confirm("确定要取消编辑吗？未保存的更改将丢失。", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "继续编辑",
-    type: "warning"
-  })
+  ElMessageBox.confirm(
+    "确定要取消编辑吗？未保存的更改将丢失。",
+    "提示",
+    {
+      confirmButtonText: "确定",
+      cancelButtonText: "继续编辑",
+      type: "warning"
+    }
+  )
     .then(() => {
       router.push({ name: "PortfolioManagement" });
     })
@@ -198,10 +200,22 @@ const handleTechClose = (tech: string) => {
   }
 };
 
-// 图库图片上传成功处理
-const handleGalleryUploadSuccess = (response: any) => {
-  if (response.code === 200 && response.data) {
-    formData.gallery_images.push(response.data.url);
+// 图库图片上传处理
+const handleGalleryImageUpload = async (file: File) => {
+  galleryUploading.value = true;
+  try {
+    const res = await uploadArticleImage(file);
+    const url = res?.data?.url;
+    if (!url) {
+      throw new Error("服务器未返回有效URL");
+    }
+    formData.gallery_images.push(url);
+    ElMessage.success("图片上传成功");
+  } catch (error: any) {
+    console.error("图库图片上传失败:", error);
+    ElMessage.error(error.message || "图片上传失败，请稍后再试。");
+  } finally {
+    galleryUploading.value = false;
   }
 };
 
@@ -285,27 +299,8 @@ onMounted(() => {
                 />
               </el-form-item>
 
-              <el-form-item label="封面图URL" prop="cover_url">
-                <el-input
-                  v-model="formData.cover_url"
-                  placeholder="请输入封面图URL"
-                  clearable
-                >
-                  <template #append>
-                    <el-button :icon="Upload">上传</el-button>
-                  </template>
-                </el-input>
-                <div v-if="formData.cover_url" class="cover-preview">
-                  <el-image
-                    :src="formData.cover_url"
-                    fit="cover"
-                    class="preview-image"
-                  >
-                    <template #error>
-                      <div class="image-error">图片加载失败</div>
-                    </template>
-                  </el-image>
-                </div>
+              <el-form-item label="封面图" prop="cover_url">
+                <ImageUpload v-model="formData.cover_url" :can-upload="true" />
               </el-form-item>
 
               <el-form-item label="项目分类" prop="project_type">
@@ -496,19 +491,37 @@ onMounted(() => {
                       </div>
                     </template>
                   </draggable>
-                  <el-upload
+                  <div
                     class="gallery-uploader"
-                    :action="uploadAction"
-                    :headers="uploadHeaders"
-                    :on-success="handleGalleryUploadSuccess"
-                    :show-file-list="false"
-                    accept="image/*"
+                    :class="{ 'is-uploading': galleryUploading }"
                   >
-                    <div class="upload-trigger">
-                      <el-icon><Plus /></el-icon>
-                      <span>上传图片</span>
+                    <input
+                      ref="galleryFileInput"
+                      type="file"
+                      accept="image/*"
+                      style="display: none"
+                      @change="
+                        (e: any) => {
+                          const file = e.target.files[0];
+                          if (file) handleGalleryImageUpload(file);
+                          e.target.value = '';
+                        }
+                      "
+                    />
+                    <div
+                      class="upload-trigger"
+                      :class="{ disabled: galleryUploading }"
+                      @click="!galleryUploading && ($refs.galleryFileInput as HTMLInputElement)?.click()"
+                    >
+                      <el-icon v-if="!galleryUploading"><Plus /></el-icon>
+                      <el-icon v-else class="is-loading">
+                        <Loading />
+                      </el-icon>
+                      <span>{{
+                        galleryUploading ? "上传中..." : "上传图片"
+                      }}</span>
                     </div>
-                  </el-upload>
+                  </div>
                 </div>
                 <span class="form-tip"
                   >支持拖拽排序，图片将展示在作品详情页</span
@@ -523,8 +536,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-
-
 @media (width <= 768px) {
   .portfolio-edit-container {
     padding: 10px;
@@ -670,50 +681,6 @@ onMounted(() => {
   width: 100%;
 }
 
-// 封面预览
-.cover-preview {
-  width: 100%;
-  max-width: 400px;
-  margin-top: 12px;
-}
-
-.preview-image {
-  width: 100%;
-  aspect-ratio: 16/10;
-  overflow: hidden;
-  border: var(--style-border);
-  border-radius: 8px;
-
-  :deep(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.image-error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-size: 14px;
-  color: var(--anzhiyu-secondtext);
-  background: var(--anzhiyu-secondbg);
-}
-
-// 技术标签
-.tech-tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-
-  .tech-input {
-    width: 100px;
-  }
-}
-
 // 表单提示
 .form-tip {
   margin-left: 12px;
@@ -773,6 +740,18 @@ onMounted(() => {
   --el-switch-on-color: var(--anzhiyu-main);
 }
 
+// 技术标签
+.tech-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+
+  .tech-input {
+    width: 100px;
+  }
+}
+
 // 图库样式
 .gallery-upload-container {
   display: flex;
@@ -816,8 +795,12 @@ onMounted(() => {
 }
 
 .gallery-uploader {
-  :deep(.el-upload) {
-    display: block;
+  &.is-uploading {
+    .upload-trigger {
+      border-color: var(--el-color-primary);
+      color: var(--el-color-primary);
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -835,13 +818,26 @@ onMounted(() => {
   border-radius: 8px;
   transition: all 0.3s;
 
-  &:hover {
+  &:not(.disabled):hover {
     color: var(--el-color-primary);
     border-color: var(--el-color-primary);
   }
 
   .el-icon {
     font-size: 24px;
+  }
+
+  .is-loading {
+    animation: rotating 1s linear infinite;
+  }
+}
+
+@keyframes rotating {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
