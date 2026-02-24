@@ -137,6 +137,18 @@ const handleMouseLeave = () => {
          <IconifyIconOnline icon="ri:magic-line" />
       </div>
 
+      <!-- Tier Badges -->
+      <div v-if="portfolio.tier === 'featured'" class="tier-badge featured-badge">
+        <IconifyIconOnline icon="ri:vip-diamond-fill" class="tier-icon" />
+        <span class="badge-text">Featured</span>
+        <div class="badge-shimmer"></div>
+      </div>
+      <div v-else-if="portfolio.tier === 'recommended'" class="tier-badge recommended-badge">
+        <IconifyIconOnline icon="ri:medal-2-fill" class="tier-icon" />
+        <span class="badge-text">Recommended</span>
+        <div class="badge-shimmer"></div>
+      </div>
+
       <!-- 图片区域 -->
     <div class="card-cover-wrapper">
       <div class="card-cover">
@@ -201,6 +213,10 @@ const handleMouseLeave = () => {
             ></span>
         </div>
       </div>
+
+      <!-- 尊贵的水印衬底背景 -->
+      <IconifyIconOnline v-if="portfolio.tier === 'featured'" icon="ri:vip-diamond-line" class="luxury-watermark featured-watermark" />
+      <IconifyIconOnline v-else-if="portfolio.tier === 'recommended'" icon="ri:medal-2-line" class="luxury-watermark recommended-watermark" />
       </div>
     </div>
   </div>
@@ -512,41 +528,143 @@ const handleMouseLeave = () => {
 
 .lazy-loaded { opacity: 1; }
 
-/* Tier Card Styles */
-.portfolio-card.tier-featured {
-  position: relative;
-  border: 3px solid transparent;
-  background:
-    linear-gradient(var(--anzhiyu-card-bg), var(--anzhiyu-card-bg)) padding-box,
-    linear-gradient(135deg, #ffd700, #ff8c00, #ff4500) border-box;
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+/* --- Luxury Tier Enhancements --- */
 
-  &::after {
-    content: "👑";
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    z-index: 5;
-    font-size: 24px;
-    pointer-events: none;
-  }
+/* 1. Global Box Styling */
+.portfolio-card.tier-featured {
+    border: 1px solid rgba(218, 165, 32, 0.4);
+    box-shadow: 0 8px 30px rgba(218, 165, 32, 0.08);
+    background: radial-gradient(circle at top right, rgba(218, 165, 32, 0.05), var(--anzhiyu-card-bg) 60%);
+    
+    &.is-hovering {
+        border-color: rgba(218, 165, 32, 1);
+        box-shadow: 0 20px 50px rgba(218, 165, 32, 0.2);
+    }
 }
 
 .portfolio-card.tier-recommended {
-  position: relative;
-  border: 2px solid transparent;
-  background:
-    linear-gradient(var(--anzhiyu-card-bg), var(--anzhiyu-card-bg)) padding-box,
-    linear-gradient(135deg, #c0c0c0, #e0e0e0, #a0a0a0) border-box;
+    border: 1px solid rgba(169, 169, 169, 0.4);
+    box-shadow: 0 8px 30px rgba(169, 169, 169, 0.08);
+    background: radial-gradient(circle at top right, rgba(169, 169, 169, 0.05), var(--anzhiyu-card-bg) 60%);
+    
+    &.is-hovering {
+        border-color: rgba(169, 169, 169, 1);
+        box-shadow: 0 20px 50px rgba(169, 169, 169, 0.2);
+    }
+}
 
-  &::after {
-    content: "⭐";
+/* 2. Floating Pill Badges */
+.tier-badge {
     position: absolute;
-    right: 8px;
-    bottom: 8px;
-    z-index: 5;
-    font-size: 20px;
+    top: 20px;
+    left: 20px;
+    z-index: 20;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transform: translateZ(30px);
+    
+    .tier-icon {
+        font-size: 1rem;
+    }
+    
+    .badge-text {
+        position: relative;
+        z-index: 2;
+    }
+}
+
+.featured-badge {
+    background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+    text-shadow: 0 1px 3px rgba(184, 134, 11, 0.6);
+}
+
+.recommended-badge {
+    background: linear-gradient(135deg, #E0E0E0 0%, #9E9E9E 100%);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.5);
+    text-shadow: 0 1px 3px rgba(100, 100, 100, 0.6);
+}
+
+/* 3. Shimmer Line Animation inside Badge */
+.badge-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    transform: skewX(-20deg);
+    animation: badgeShine 3s infinite;
+    z-index: 1;
+}
+
+.recommended-badge .badge-shimmer {
+    animation-duration: 4s;
+    animation-delay: 1s;
+}
+
+@keyframes badgeShine {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+}
+
+/* 4. Luxury Watermark Pattern */
+.luxury-watermark {
+    position: absolute;
+    right: -10px;
+    bottom: -15px;
+    font-size: 14rem;
+    line-height: 1;
     pointer-events: none;
-  }
+    z-index: 0;
+    transform: rotate(-15deg) translateZ(0); 
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s;
+}
+
+.featured-watermark {
+    color: rgba(218, 165, 32, 1);
+    opacity: 0.05;
+}
+
+.recommended-watermark {
+    color: rgba(169, 169, 169, 1);
+    opacity: 0.05;
+}
+
+.portfolio-card.is-hovering {
+    .featured-watermark { opacity: 0.12; transform: rotate(0deg) scale(1.1) translateZ(10px); }
+    .recommended-watermark { opacity: 0.12; transform: rotate(0deg) scale(1.1) translateZ(10px); }
+}
+
+[data-theme='dark'] {
+    .featured-watermark { opacity: 0.1; }
+    .recommended-watermark { opacity: 0.1; }
+    
+    .portfolio-card.is-hovering {
+        .featured-watermark { opacity: 0.2; }
+        .recommended-watermark { opacity: 0.2; }
+    }
+    
+    .portfolio-card.tier-featured { background: radial-gradient(circle at top right, rgba(218, 165, 32, 0.1), var(--anzhiyu-card-bg) 60%); }
+    .portfolio-card.tier-recommended { background: radial-gradient(circle at top right, rgba(169, 169, 169, 0.1), var(--anzhiyu-card-bg) 60%); }
+}
+
+/* Relative positioning context for content elements to stay above watermark */
+.tag-row, .card-title, .card-description, .card-footer {
+    position: relative;
+    z-index: 2;
 }
 </style>
