@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, onUnmounted, nextTick, watch } from "vue";
 import type { Portfolio } from "@/types/portfolio";
 import IconifyIconOnline from "@/components/ReIcon/src/iconifyIconOnline";
 import MarkdownContent from "./MarkdownContent.vue";
@@ -11,6 +11,10 @@ defineOptions({
 const props = defineProps<{
   portfolio: Portfolio;
 }>();
+
+// Fancybox 懒加载
+let Fancybox: any = null;
+const galleryContainerRef = ref<HTMLElement | null>(null);
 
 // 简单检查是否有丰富信息
 const hasRichInfo = computed(() => {
@@ -28,6 +32,61 @@ const handleImageLoad = (index: number, event: Event) => {
     aspectRatio: img.naturalWidth / img.naturalHeight
   };
 };
+
+// 初始化 Fancybox 图片预览
+const initFancybox = async () => {
+  if (!galleryContainerRef.value) return;
+
+  // 懒加载 Fancybox
+  if (!Fancybox) {
+    const fancyboxModule = await import("@fancyapps/ui");
+    await import("@fancyapps/ui/dist/fancybox/fancybox.css");
+    Fancybox = fancyboxModule.Fancybox;
+  }
+
+  // 绑定图库中的所有图片
+  Fancybox.bind(galleryContainerRef.value, ".waterfall-item img", {
+    groupAll: true,
+    Toolbar: {
+      display: {
+        left: ["infobar"],
+        middle: [],
+        right: ["slideshow", "thumbs", "close"]
+      }
+    },
+    caption: function (this: any, instance: any, slide: any) {
+      const caption = slide.caption || "";
+      return `${caption} <span class="fancybox-counter">${slide.index + 1} / ${instance.slides.length}</span>`;
+    }
+  });
+};
+
+// 清理 Fancybox
+const cleanupFancybox = () => {
+  if (galleryContainerRef.value && Fancybox) {
+    Fancybox.unbind(galleryContainerRef.value);
+    Fancybox.close(true);
+  }
+};
+
+onMounted(async () => {
+  await nextTick();
+  initFancybox();
+});
+
+onUnmounted(() => {
+  cleanupFancybox();
+});
+
+// 监听 portfolio 变化，重新初始化 Fancybox（用于路由切换）
+watch(
+  () => props.portfolio.id,
+  async () => {
+    cleanupFancybox();
+    await nextTick();
+    initFancybox();
+  }
+);
 </script>
 
 <template>
@@ -92,7 +151,7 @@ const handleImageLoad = (index: number, event: Event) => {
       <h2 class="section-heading">视觉画廊</h2>
 
       <!-- 瀑布流容器 -->
-      <div class="waterfall-gallery">
+      <div ref="galleryContainerRef" class="waterfall-gallery">
         <!-- 左列 -->
         <div class="waterfall-column">
           <div
@@ -407,6 +466,17 @@ const handleImageLoad = (index: number, event: Event) => {
   100% {
     background-position: -200% 0;
   }
+}
+
+/* Fancybox 图片计数器样式 */
+:deep(.fancybox-counter) {
+  margin-left: 10px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(255 255 255 / 80%);
+  background: rgb(0 0 0 / 30%);
+  border-radius: 20px;
 }
 
 /* --- Legacy Stats --- */
