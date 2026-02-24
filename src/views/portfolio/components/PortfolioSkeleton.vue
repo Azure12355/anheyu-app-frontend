@@ -16,7 +16,7 @@ const siteConfigStore = useSiteConfigStore();
 </script>
 
 <template>
-  <div 
+  <div
     class="portfolio-skeleton-wrapper"
     :style="{ '--animation-order': animationOrder || 0 }"
   >
@@ -185,45 +185,6 @@ const siteConfigStore = useSiteConfigStore();
     &.short {
       width: 60%;
     }
-  }
-<<<<<<< HEAD
-
-  .skeleton-meta {
-    display: flex;
-    gap: 8px;
-    margin-top: auto;
-  }
-
-  .skeleton-tech {
-    height: 24px;
-    width: 50px;
-    background: var(--anzhiyu-secondbg);
-    border-radius: 4px;
-    animation: pulse 1.5s ease-in-out infinite;
-    animation-delay: 0.3s;
-
-    &.short {
-      width: 35px;
-    }
-  }
-}
-
-@keyframes shine {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 200%;
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
   }
 }
 

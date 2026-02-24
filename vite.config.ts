@@ -97,6 +97,13 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       // 启用 CSS 代码分割
       cssCodeSplit: true
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          silenceDeprecations: ["legacy-js-api", "mixed-decls", "import"]
+        }
+      }
+    },
     define: {
       __INTLIFY_PROD_DEVTOOLS__: false,
       __APP_INFO__: JSON.stringify(__APP_INFO__)
