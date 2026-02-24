@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { Portfolio } from "@/types/portfolio";
 import IconifyIconOnline from "@/components/ReIcon/src/iconifyIconOnline";
 
@@ -11,15 +11,21 @@ const props = defineProps<{
   portfolio: Portfolio;
 }>();
 
-// Simple check if rich info is present
+// 简单检查是否有丰富信息
 const hasRichInfo = computed(() => {
     return props.portfolio.overview || props.portfolio.challenge || props.portfolio.gallery_images?.length;
 });
 
-// Handle image load for animation
-const handleImageLoad = (e: Event) => {
-  const target = e.target as HTMLImageElement;
-  target.classList.add('loaded');
+// 图片加载状态管理
+const imageStates = ref<Record<number, { loaded: boolean; aspectRatio: number }>>({});
+
+// 处理图片加载完成
+const handleImageLoad = (index: number, event: Event) => {
+  const img = event.target as HTMLImageElement;
+  imageStates.value[index] = {
+    loaded: true,
+    aspectRatio: img.naturalWidth / img.naturalHeight
+  };
 };
 </script>
 
@@ -67,28 +73,61 @@ const handleImageLoad = (e: Event) => {
         </div>
     </div>
 
-    <!-- Image Gallery -->
+    <!-- Image Gallery - Waterfall Layout -->
     <div
       v-if="portfolio.gallery_images && portfolio.gallery_images.length > 0"
       class="project-gallery"
     >
       <h2 class="section-heading">视觉画廊</h2>
-      <div class="gallery-masonry">
-        <div
-          v-for="(img, idx) in portfolio.gallery_images"
-          :key="idx"
-          class="gallery-frame"
-          :data-index="idx"
-        >
-          <div class="frame-inner">
-            <img
-              :src="img"
-              :alt="`${portfolio.title} Image ${idx + 1}`"
-              loading="lazy"
-              @load="handleImageLoad"
-            />
-            <div class="frame-overlay">
-              <span class="image-number">{{ String(idx + 1).padStart(2, '0') }}</span>
+
+      <!-- 瀑布流容器 -->
+      <div class="waterfall-gallery">
+        <!-- 左列 -->
+        <div class="waterfall-column">
+          <div
+            v-for="(img, idx) in portfolio.gallery_images"
+            v-show="idx % 2 === 0"
+            :key="idx"
+            class="waterfall-item"
+            :class="{ 'is-loaded': imageStates[idx]?.loaded }"
+          >
+            <div class="image-wrapper">
+              <img
+                :src="img"
+                :alt="`${portfolio.title} Image ${idx + 1}`"
+                loading="lazy"
+                @load="handleImageLoad(idx, $event)"
+              />
+              <div class="image-overlay">
+                <div class="overlay-content">
+                  <span class="image-number">{{ idx + 1 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右列 -->
+        <div class="waterfall-column">
+          <div
+            v-for="(img, idx) in portfolio.gallery_images"
+            v-show="idx % 2 === 1"
+            :key="idx"
+            class="waterfall-item"
+            :class="{ 'is-loaded': imageStates[idx]?.loaded }"
+          >
+            <div class="image-wrapper">
+              <img
+                :src="img"
+                :alt="`${portfolio.title} Image ${idx + 1}`"
+                loading="lazy"
+                @load="handleImageLoad(idx, $event)"
+              />
+              <div class="image-overlay">
+                <div class="overlay-content">
+                  <span class="image-number">{{ idx + 1 }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -221,128 +260,142 @@ const handleImageLoad = (e: Event) => {
     }
 }
 
-/* --- Image Gallery (Artistic Masonry style) --- */
+/* --- Image Gallery (Waterfall Layout like Xiaohongshu) --- */
 .project-gallery {
   margin-top: 3rem;
 }
 
-.gallery-masonry {
-  --gap-size: 1.5rem;
-  --frame-radius: 16px;
+.waterfall-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  align-items: start;
 
+  @media (width <= 768px) {
+    gap: 1rem;
+  }
+}
+
+.waterfall-column {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-size);
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 1.5rem;
 
   @media (width <= 768px) {
-    --gap-size: 1rem;
+    gap: 1rem;
   }
 }
 
-.gallery-frame {
-  --frame-width: calc((100% - var(--gap-size)) / 2);
-
-  width: var(--frame-width);
-  break-inside: avoid;
-  page-break-inside: avoid;
-
-  @media (width <= 768px) {
-    --frame-width: 100%;
-  }
-
-  // Create varied heights for artistic look
-  &:nth-child(3n+1) .frame-inner {
-    padding-top: 100%; // Square
-  }
-
-  &:nth-child(3n+2) .frame-inner {
-    padding-top: 75%; // 4:3 landscape
-  }
-
-  &:nth-child(3n+3) .frame-inner {
-    padding-top: 133.33%; // 3:4 portrait
-  }
-
-  &:first-child .frame-inner {
-    padding-top: 56.25%; // 16:9 - hero image
-  }
-
-  @media (width <= 768px) {
-    &:nth-child(3n+1) .frame-inner,
-    &:nth-child(3n+2) .frame-inner,
-    &:nth-child(3n+3) .frame-inner {
-      padding-top: 75%; // Uniform 4:3 on mobile
-    }
-  }
-}
-
-.frame-inner {
-  position: relative;
-  width: 100%;
-  background: var(--anzhiyu-card-bg);
-  border-radius: var(--frame-radius);
-  overflow: hidden;
-  box-shadow:
-    0 4px 20px rgb(0 0 0 / 8%),
-    0 0 0 1px rgb(255 255 255 / 5%) inset;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    box-shadow:
-      0 8px 30px rgb(0 0 0 / 12%),
-      0 0 0 1px var(--anzhiyu-theme) inset;
-    transform: translateY(-4px);
-  }
-
-  img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-    padding: 0.75rem;
-    opacity: 0;
-    transform: scale(0.95);
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-
-    &.loaded {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-}
-
-.frame-overlay {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  padding: 0 10px;
-  font-family: "Playfair Display", serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--anzhiyu-card-bg);
-  background: var(--anzhiyu-theme);
-  border-radius: 99px;
+.waterfall-item {
   opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 2;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 
-  .frame-inner:hover & {
+  &.is-loaded {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.image-number {
-  letter-spacing: 1px;
+.image-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--anzhiyu-card-bg);
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 8%),
+    0 1px 3px rgb(0 0 0 / 5%);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+
+  &:hover {
+    box-shadow:
+      0 8px 30px rgb(0 0 0 / 12%),
+      0 2px 6px rgb(0 0 0 / 8%);
+    transform: translateY(-4px);
+
+    .image-overlay {
+      opacity: 1;
+    }
+
+    img {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.image-wrapper img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* 不设置固定高度，让图片按原始比例显示 */
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 16px;
+}
+
+/* 图片遮罩层 */
+.image-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+
+  /* 渐变遮罩 */
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 30%) 0%,
+    transparent 50%
+  );
+  border-radius: 16px;
+}
+
+.overlay-content {
+  .image-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    background: rgb(0 0 0 / 50%);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+  }
+}
+
+/* 骨架屏加载效果 */
+.waterfall-item:not(.is-loaded) .image-wrapper {
+  &::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: linear-gradient(
+      90deg,
+      var(--anzhiyu-card-bg) 25%,
+      rgb(128 128 128 / 5%) 50%,
+      var(--anzhiyu-card-bg) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 16px;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* --- Legacy Stats --- */
