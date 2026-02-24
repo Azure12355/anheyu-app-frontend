@@ -76,7 +76,7 @@ watch(
       <div class="main-content">
           <div class="content-grid">
               <!-- Left: Image Showcase -->
-              <div class="showcase-column" v-motion-slide-visible-left>
+              <div class="showcase-column">
                   <div class="main-image-wrapper">
                       <img :src="portfolio.cover_url" :alt="portfolio.title" class="main-image" />
                       <div class="image-reflection"></div>
@@ -100,7 +100,7 @@ watch(
               </div>
 
               <!-- Right: Details Component -->
-              <div class="info-wrapper" v-motion-slide-visible-right>
+              <div class="info-wrapper">
                 <ProjectInfo :portfolio="portfolio" />
               </div>
           </div>
@@ -306,24 +306,5 @@ watch(
     font-weight: 600;
     color: var(--anzhiyu-fontcolor);
     line-height: 1.3;
-}
-
-/* Motion Mock Helper */
-[v-motion-slide-visible-left] {
-    animation: slideRightFade 0.8s ease-out forwards;
-}
-
-[v-motion-slide-visible-right] {
-    animation: slideLeftFade 0.8s ease-out forwards;
-}
-
-@keyframes slideRightFade {
-    from { opacity: 0; transform: translateX(-40px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideLeftFade {
-    from { opacity: 0; transform: translateX(40px); }
-    to { opacity: 1; transform: translateX(0); }
 }
 </style>

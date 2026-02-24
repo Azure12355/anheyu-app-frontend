@@ -76,11 +76,14 @@ export interface Portfolio {
 
   // Optional Rich Detail Fields for Portfolio Detail page
   overview?: string;
+  overview_html?: string;  // 概述的 HTML 渲染版本
   role?: string;
   duration?: string;
   client?: string;
   challenge?: string;
+  challenge_html?: string;  // 挑战的 HTML 渲染版本
   solution?: string;
+  solution_html?: string;  // 解决方案的 HTML 渲染版本
   gallery_images?: string[];
 }
 

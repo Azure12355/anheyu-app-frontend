@@ -384,9 +384,9 @@ onMounted(() => {
                 <el-input
                   v-model="formData.overview"
                   type="textarea"
-                  :rows="3"
-                  placeholder="简要概述项目的核心内容和价值"
-                  maxlength="500"
+                  :rows="6"
+                  placeholder="简要概述项目的核心内容和价值（支持 Markdown 语法）"
+                  maxlength="5000"
                   show-word-limit
                 />
               </el-form-item>
@@ -422,9 +422,9 @@ onMounted(() => {
                 <el-input
                   v-model="formData.challenge"
                   type="textarea"
-                  :rows="4"
-                  placeholder="描述项目面临的主要挑战或要解决的问题"
-                  maxlength="1000"
+                  :rows="6"
+                  placeholder="描述项目面临的主要挑战或要解决的问题（支持 Markdown 语法）"
+                  maxlength="5000"
                   show-word-limit
                 />
               </el-form-item>
@@ -433,9 +433,9 @@ onMounted(() => {
                 <el-input
                   v-model="formData.solution"
                   type="textarea"
-                  :rows="4"
-                  placeholder="描述如何解决上述挑战，使用的技术方案和创新点"
-                  maxlength="1000"
+                  :rows="6"
+                  placeholder="描述如何解决上述挑战，使用的技术方案和创新点（支持 Markdown 语法）"
+                  maxlength="5000"
                   show-word-limit
                 />
               </el-form-item>

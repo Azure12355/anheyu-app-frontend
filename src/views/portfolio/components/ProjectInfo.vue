@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import type { Portfolio } from "@/types/portfolio";
 import IconifyIconOnline from "@/components/ReIcon/src/iconifyIconOnline";
+import MarkdownContent from "./MarkdownContent.vue";
 
 defineOptions({
   name: "ProjectInfo"
@@ -34,27 +35,37 @@ const handleImageLoad = (index: number, event: Event) => {
     <!-- Editorial Layout for Story -->
     <div class="editorial-grid">
         <!-- Overview -->
-        <div class="editorial-block full-width" v-if="portfolio.overview">
+        <div class="editorial-block full-width" v-if="portfolio.overview || portfolio.overview_html">
             <h2 class="section-heading">概述</h2>
-            <p class="drop-cap-text">{{ portfolio.overview }}</p>
-            <!-- Fallback if overview doesn't exist but description does -->
-            <p class="body-text" v-if="!portfolio.overview">{{ portfolio.description }}</p>
+            <MarkdownContent
+                v-if="portfolio.overview_html"
+                :content="portfolio.overview_html"
+            />
+            <p v-else class="drop-cap-text">{{ portfolio.overview }}</p>
         </div>
-        
-        <div class="editorial-block full-width" v-if="!portfolio.overview">
+
+        <div class="editorial-block full-width" v-if="!portfolio.overview && !portfolio.overview_html && portfolio.description">
             <h2 class="section-heading">描述</h2>
             <p class="drop-cap-text">{{ portfolio.description }}</p>
         </div>
 
         <!-- Two Column Challenge / Solution -->
-        <div class="editorial-block two-col" v-if="portfolio.challenge || portfolio.solution">
-            <div class="col" v-if="portfolio.challenge">
+        <div class="editorial-block two-col" v-if="portfolio.challenge || portfolio.challenge_html || portfolio.solution || portfolio.solution_html">
+            <div class="col" v-if="portfolio.challenge || portfolio.challenge_html">
                 <h3 class="subsection-heading"><IconifyIconOnline icon="ri:focus-3-line" class="heading-icon"/> 所遇挑战</h3>
-                <p class="body-text">{{ portfolio.challenge }}</p>
+                <MarkdownContent
+                    v-if="portfolio.challenge_html"
+                    :content="portfolio.challenge_html"
+                />
+                <p v-else class="body-text">{{ portfolio.challenge }}</p>
             </div>
-            <div class="col" v-if="portfolio.solution">
+            <div class="col" v-if="portfolio.solution || portfolio.solution_html">
                 <h3 class="subsection-heading"><IconifyIconOnline icon="ri:lightbulb-flash-line" class="heading-icon"/> 解决方案</h3>
-                <p class="body-text">{{ portfolio.solution }}</p>
+                <MarkdownContent
+                    v-if="portfolio.solution_html"
+                    :content="portfolio.solution_html"
+                />
+                <p v-else class="body-text">{{ portfolio.solution }}</p>
             </div>
         </div>
 
