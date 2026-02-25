@@ -155,29 +155,60 @@ provide("updateHeadingTocItems", (items: { id: string }[]) => {
 // --- 方法与逻辑 ---
 
 /**
- * @description 文章主题色管理（已禁用文章主题色覆盖功能）
- *
- * 说明：博客文章头部背景现在始终使用系统配置的主题色（--anzhiyu-theme），
- * 不再根据文章的 primary_color 动态覆盖。
- * 文章的 primary_color 保留用于其他需要的地方（如作者卡片等特定区域）。
- *
+ * @description 管理文章主色调主题的逻辑（优化版本）
  * @param articleRef - 文章数据的 ref
  */
 const useArticleTheme = (articleRef: Ref<Article | null>) => {
-  // 已禁用文章主题色覆盖功能
-  // 文章的 primary_color 不再自动应用到全局 CSS 变量
-  // 博客文章头部使用系统配置的主题色
+  // 记录上一次的颜色，避免重复设置
+  let previousColor: string | undefined = undefined;
 
-  console.log("[PostDetail] 文章主题色覆盖功能已禁用，使用系统主题色");
+  watch(
+    () => articleRef.value?.primary_color,
+    (newColor, oldColor) => {
+      console.log(
+        "[PostDetail] watch primary_color 触发:",
+        "newColor=",
+        newColor,
+        "oldColor=",
+        oldColor,
+        "previousColor=",
+        previousColor
+      );
 
-  // onMounted 时保存当前的主题色作为原始颜色（用于其他可能需要的功能）
+      // 如果颜色没有变化，跳过处理
+      if (newColor === previousColor) {
+        console.log("[PostDetail] 颜色未变化，跳过处理");
+        return;
+      }
+
+      // 更新记录
+      previousColor = newColor;
+
+      // 如果新颜色为空，重置到默认主题色
+      if (!newColor) {
+        console.log("[PostDetail] 新颜色为空，重置到默认主题色");
+        resetThemeToDefault();
+      } else {
+        console.log("[PostDetail] 设置文章主题色:", newColor);
+        setArticleTheme(newColor);
+      }
+    },
+    { immediate: true }
+  );
+
   onMounted(() => {
+    // 在mounted时保存当前的主题色作为原始颜色
     saveOriginalThemeColors();
   });
 
   onUnmounted(() => {
     commentStore.resetStore();
+    // 离开文章页时，重置到默认主题色
+    resetThemeToDefault();
     clearArticleMetaTags();
+
+    // 清空记录
+    previousColor = undefined;
   });
 };
 

@@ -76,30 +76,28 @@ export function useDataThemeChange() {
       body.classList.remove("light");
       body.classList.add("dark");
       body.setAttribute("data-theme", "dark");
+      // 优先使用用户配置的暗色主题色，否则使用默认暗色
       const darkColor = userDarkColor || "#dfa621";
       setEpThemeColor(epThemeColor || darkColor);
 
-      // 应用用户配置的主题色到 CSS 变量
-      if (userDarkColor) {
-        body.style.setProperty("--anzhiyu-theme", userDarkColor);
-        body.style.setProperty("--anzhiyu-theme-op", `${userDarkColor}23`);
-        body.style.setProperty("--anzhiyu-theme-op-deep", `${userDarkColor}dd`);
-        body.style.setProperty("--anzhiyu-theme-op-light", `${userDarkColor}0d`);
-      }
+      // 应用主题色到 CSS 变量（无论是否为用户配置，都确保设置）
+      body.style.setProperty("--anzhiyu-theme", darkColor);
+      body.style.setProperty("--anzhiyu-theme-op", `${darkColor}23`);
+      body.style.setProperty("--anzhiyu-theme-op-deep", `${darkColor}dd`);
+      body.style.setProperty("--anzhiyu-theme-op-light", `${darkColor}0d`);
     } else {
       body.classList.remove("dark");
       body.classList.add("light");
       body.setAttribute("data-theme", "light");
+      // 优先使用用户配置的亮色主题色，否则使用默认亮色
       const lightColor = userLightColor || getConfig().EpThemeColor;
       setEpThemeColor(epThemeColor || lightColor);
 
-      // 应用用户配置的主题色到 CSS 变量
-      if (userLightColor) {
-        body.style.setProperty("--anzhiyu-theme", userLightColor);
-        body.style.setProperty("--anzhiyu-theme-op", `${userLightColor}23`);
-        body.style.setProperty("--anzhiyu-theme-op-deep", `${userLightColor}dd`);
-        body.style.setProperty("--anzhiyu-theme-op-light", `${userLightColor}0d`);
-      }
+      // 应用主题色到 CSS 变量（无论是否为用户配置，都确保设置）
+      body.style.setProperty("--anzhiyu-theme", lightColor);
+      body.style.setProperty("--anzhiyu-theme-op", `${lightColor}23`);
+      body.style.setProperty("--anzhiyu-theme-op-deep", `${lightColor}dd`);
+      body.style.setProperty("--anzhiyu-theme-op-light", `${lightColor}0d`);
     }
   };
 
