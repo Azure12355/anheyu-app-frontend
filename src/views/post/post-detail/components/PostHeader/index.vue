@@ -142,17 +142,12 @@ watch(
   }
 );
 
+// 博客文章头部背景色使用系统配置的主题色，不再使用文章的 primary_color
+// 文章的 primary_color 仅用于作者卡片等特定区域
 const dynamicStyles = computed(() => {
-  if (isDark.value) {
-    return {
-      "--primary-color":
-        props.article.primary_color + "dd" || "var(--anzhiyu-main-op-deep)"
-    };
-  } else {
-    return {
-      "--primary-color": props.article.primary_color || "var(--anzhiyu-main)"
-    };
-  }
+  // 直接使用系统配置的主题色，通过 CSS 变量 --anzhiyu-theme 自动适配亮色/暗色模式
+  // 不再动态设置 --primary-color，让 CSS 使用默认的 --anzhiyu-theme
+  return {};
 });
 
 const formatDate = (dateString: string) => {
@@ -269,7 +264,7 @@ const scrollToComment = (event: Event) => {
 </script>
 
 <template>
-  <div class="post-header-container" :style="dynamicStyles">
+  <div class="post-header-container">
     <div class="post-info">
       <div class="post-firstinfo">
         <div class="meta-firstline-top">
@@ -455,6 +450,7 @@ const scrollToComment = (event: Event) => {
   overflow: hidden;
   color: var(--anzhiyu-white);
 
+  // 使用系统配置的主题色，不再使用文章的 primary_color
   &::before {
     position: absolute;
     top: 0;
@@ -463,7 +459,7 @@ const scrollToComment = (event: Event) => {
     width: 100%;
     height: 100%;
     content: "";
-    background-color: var(--primary-color);
+    background-color: var(--anzhiyu-theme);
     opacity: 1;
     transition: 0s;
   }
