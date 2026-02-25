@@ -62,6 +62,17 @@
             <PageSittingForm v-model="form.page" />
           </template>
 
+          <!-- 外观配置 - 主题配置 -->
+          <template v-else-if="activeComponent === 'ThemeSettingsForm'">
+            <div class="section-header">
+              <h2>主题配置</h2>
+              <p class="section-desc">
+                配置亮色和暗色模式的主题颜色
+              </p>
+            </div>
+            <ThemeSettingsForm v-model="form.theme" />
+          </template>
+
           <!-- 内容管理 - 文章配置 -->
           <template v-else-if="activeComponent === 'PostSettings'">
             <div class="section-header">
@@ -251,6 +262,7 @@ import AlbumPageForm from "./components/frontDesk/AlbumPageForm/index.vue";
 import MusicPageForm from "./components/frontDesk/MusicPageForm/index.vue";
 import CaptchaSettingsForm from "./components/frontDesk/CaptchaSettingsForm/index.vue";
 import WechatShareSettingsForm from "./components/frontDesk/WechatShareSettingsForm/index.vue";
+import ThemeSettingsForm from "./components/frontDesk/ThemeSettingsForm/index.vue";
 import BackupImportForm from "./components/BackupImportForm.vue";
 
 const siteConfigStore = useSiteConfigStore();
@@ -396,7 +408,8 @@ const componentToPathPrefix: Record<string, string[]> = {
   AlbumPageForm: ["frontDesk.album."],
   MusicPageForm: ["frontDesk.music."],
   CaptchaSettingsForm: ["frontDesk.captcha."],
-  WechatShareSettingsForm: ["frontDesk.wechatShare."]
+  WechatShareSettingsForm: ["frontDesk.wechatShare."],
+  ThemeSettingsForm: ["theme."]
 };
 
 // 重置选区 - 重置当前 tab 的配置

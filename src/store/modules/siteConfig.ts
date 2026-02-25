@@ -97,6 +97,9 @@ export const useSiteConfigStore = defineStore("anheyu-site-config", {
         checkAndShowAnnouncementByConfig(this.siteConfig.SITE_ANNOUNCEMENT);
       }
 
+      // 应用用户配置的主题色
+      this.applyUserThemeColors();
+
       const dataToCache = {
         config: this.siteConfig,
         timestamp: Date.now()
@@ -373,6 +376,35 @@ export const useSiteConfigStore = defineStore("anheyu-site-config", {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
       this.isLoaded = false;
       console.info("配置缓存已清除");
+    },
+
+    /**
+     * 应用用户配置的主题色到 CSS 变量
+     */
+    applyUserThemeColors() {
+      const config = this.siteConfig;
+      if (!config) return;
+
+      // 获取当前主题模式
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+      // 亮色主题色
+      if (config.THEME_COLOR_LIGHT) {
+        const lightColor = config.THEME_COLOR_LIGHT;
+        document.documentElement.style.setProperty("--anzhiyu-theme", lightColor);
+        document.documentElement.style.setProperty("--anzhiyu-theme-op", `${lightColor}23`);
+        document.documentElement.style.setProperty("--anzhiyu-theme-op-deep", `${lightColor}dd`);
+        document.documentElement.style.setProperty("--anzhiyu-theme-op-light", `${lightColor}0d`);
+      }
+
+      // 暗色主题色（如果当前是暗色模式）
+      if (isDark && config.THEME_COLOR_DARK) {
+        const darkColor = config.THEME_COLOR_DARK;
+        document.documentElement.style.setProperty("--anzhiyu-theme", darkColor);
+        document.documentElement.style.setProperty("--anzhiyu-theme-op", `${darkColor}23`);
+        document.documentElement.style.setProperty("--anzhiyu-theme-op-deep", `${darkColor}dd`);
+        document.documentElement.style.setProperty("--anzhiyu-theme-op-light", `${darkColor}0d`);
+      }
     }
   }
 });

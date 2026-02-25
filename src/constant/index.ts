@@ -47,6 +47,8 @@ const KeyCustomSidebar: SettingKey = "CUSTOM_SIDEBAR";
 const KeyCustomPostTopHTML: SettingKey = "CUSTOM_POST_TOP_HTML";
 const KeyCustomPostBottomHTML: SettingKey = "CUSTOM_POST_BOTTOM_HTML";
 const KeyDefaultThemeMode: SettingKey = "DEFAULT_THEME_MODE";
+const KeyThemeColorLight: SettingKey = "THEME_COLOR_LIGHT";
+const KeyThemeColorDark: SettingKey = "THEME_COLOR_DARK";
 const KeyUploadAllowedExtensions: SettingKey = "UPLOAD_ALLOWED_EXTENSIONS";
 const KeyUploadDeniedExtensions: SettingKey = "UPLOAD_DENIED_EXTENSIONS";
 const KeyEnableExternalLinkWarning: SettingKey = "ENABLE_EXTERNAL_LINK_WARNING";
@@ -467,6 +469,8 @@ export const constant = {
   KeyCustomPostTopHTML,
   KeyCustomPostBottomHTML,
   KeyDefaultThemeMode,
+  KeyThemeColorLight,
+  KeyThemeColorDark,
   KeyUploadAllowedExtensions,
   KeyUploadDeniedExtensions,
   KeyEnableExternalLinkWarning,

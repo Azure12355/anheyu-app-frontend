@@ -92,6 +92,12 @@ export const settingsMenuConfig: SettingsMenuItem[] = [
         label: "页面样式",
         component: "PageSittingForm",
         keywords: ["外链", "图片", "一图流", "CSS", "JS"]
+      },
+      {
+        key: "appearance-theme",
+        label: "主题配置",
+        component: "ThemeSettingsForm",
+        keywords: ["主题", "颜色", "亮色", "暗色", "theme", "color"]
       }
     ]
   },
@@ -389,6 +395,26 @@ const pageDescriptors: SettingDescriptor[] = [
     backendKey: constant.KeyTypingSpeed,
     defaultValue: 100,
     type: "number"
+  }
+];
+
+// --- 主题色配置 ---
+const themeColorDescriptors: SettingDescriptor[] = [
+  {
+    frontendPath: "theme.themeColorLight",
+    backendKey: constant.KeyThemeColorLight,
+    defaultValue: "#163bf2",
+    type: "string",
+    label: "亮色主题色",
+    searchKeywords: ["主题", "颜色", "亮色", "theme", "color", "light"]
+  },
+  {
+    frontendPath: "theme.themeColorDark",
+    backendKey: constant.KeyThemeColorDark,
+    defaultValue: "#dfa621",
+    type: "string",
+    label: "暗色主题色",
+    searchKeywords: ["主题", "颜色", "暗色", "theme", "color", "dark"]
   }
 ];
 
@@ -2248,6 +2274,7 @@ const wechatShareDescriptors: SettingDescriptor[] = [
 export const allSettingDescriptors = [
   ...siteDescriptors,
   ...pageDescriptors,
+  ...themeColorDescriptors,
   ...fileDescriptors,
   ...postDescriptors,
   ...equipmentDescriptors,

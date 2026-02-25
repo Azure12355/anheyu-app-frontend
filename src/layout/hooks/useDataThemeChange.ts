@@ -1,6 +1,7 @@
 import { ref, readonly, onMounted, onUnmounted } from "vue";
 import { getConfig, responsiveStorageNameSpace } from "@/config/base";
 import { darken, lighten, storageLocal } from "@pureadmin/utils";
+import { useSiteConfigStore } from "@/store/modules/siteConfig";
 
 // --- 单例状态定义 ---
 let isInitialized = false;
@@ -64,16 +65,41 @@ export function useDataThemeChange() {
   // --- 辅助函数：应用主题到 DOM ---
   const applyTheme = (isDark: boolean, epThemeColor?: string) => {
     const body = document.documentElement as HTMLElement;
+
+    // 获取站点配置中的主题色
+    const siteConfigStore = useSiteConfigStore();
+    const config = siteConfigStore.getSiteConfig;
+    const userLightColor = config?.THEME_COLOR_LIGHT;
+    const userDarkColor = config?.THEME_COLOR_DARK;
+
     if (isDark) {
       body.classList.remove("light");
       body.classList.add("dark");
       body.setAttribute("data-theme", "dark");
-      setEpThemeColor(epThemeColor || "#dfa621");
+      const darkColor = userDarkColor || "#dfa621";
+      setEpThemeColor(epThemeColor || darkColor);
+
+      // 应用用户配置的主题色到 CSS 变量
+      if (userDarkColor) {
+        body.style.setProperty("--anzhiyu-theme", userDarkColor);
+        body.style.setProperty("--anzhiyu-theme-op", `${userDarkColor}23`);
+        body.style.setProperty("--anzhiyu-theme-op-deep", `${userDarkColor}dd`);
+        body.style.setProperty("--anzhiyu-theme-op-light", `${userDarkColor}0d`);
+      }
     } else {
       body.classList.remove("dark");
       body.classList.add("light");
       body.setAttribute("data-theme", "light");
-      setEpThemeColor(epThemeColor || getConfig().EpThemeColor);
+      const lightColor = userLightColor || getConfig().EpThemeColor;
+      setEpThemeColor(epThemeColor || lightColor);
+
+      // 应用用户配置的主题色到 CSS 变量
+      if (userLightColor) {
+        body.style.setProperty("--anzhiyu-theme", userLightColor);
+        body.style.setProperty("--anzhiyu-theme-op", `${userLightColor}23`);
+        body.style.setProperty("--anzhiyu-theme-op-deep", `${userLightColor}dd`);
+        body.style.setProperty("--anzhiyu-theme-op-light", `${userLightColor}0d`);
+      }
     }
   };
 
@@ -125,7 +151,15 @@ export function useDataThemeChange() {
     if (overallStyle.value === "system") {
       const isDark = mediaQueryList.matches;
       dataTheme.value = isDark;
-      applyTheme(isDark);
+
+      // 获取站点配置中的主题色
+      const siteConfigStore = useSiteConfigStore();
+      const config = siteConfigStore.getSiteConfig;
+      const themeColor = isDark
+        ? config?.THEME_COLOR_DARK || "#dfa621"
+        : config?.THEME_COLOR_LIGHT || getConfig().EpThemeColor;
+
+      applyTheme(isDark, themeColor);
 
       // 更新 localStorage
       const layoutConfig =
@@ -140,7 +174,15 @@ export function useDataThemeChange() {
     if (overallStyle.value === "auto") {
       const isDark = shouldBeDarkByTime();
       dataTheme.value = isDark;
-      applyTheme(isDark);
+
+      // 获取站点配置中的主题色
+      const siteConfigStore = useSiteConfigStore();
+      const config = siteConfigStore.getSiteConfig;
+      const themeColor = isDark
+        ? config?.THEME_COLOR_DARK || "#dfa621"
+        : config?.THEME_COLOR_LIGHT || getConfig().EpThemeColor;
+
+      applyTheme(isDark, themeColor);
 
       // 更新 localStorage
       const layoutConfig =
@@ -202,6 +244,10 @@ export function useDataThemeChange() {
     overallStyle.value = newOverallStyle;
     let newEpThemeColor = getConfig().EpThemeColor;
 
+    // 获取站点配置中的主题色
+    const siteConfigStore = useSiteConfigStore();
+    const config = siteConfigStore.getSiteConfig;
+
     // 清理之前的监听器和定时器
     mediaQueryList.removeEventListener("change", updateSystemTheme);
     clearAutoSwitchTimer();
@@ -222,7 +268,13 @@ export function useDataThemeChange() {
       dataTheme.value = newOverallStyle === "dark";
     }
 
-    newEpThemeColor = dataTheme.value ? "#dfa621" : getConfig().EpThemeColor;
+    // 使用用户配置的主题色，如果没有配置则使用默认值
+    if (dataTheme.value) {
+      newEpThemeColor = config?.THEME_COLOR_DARK || "#dfa621";
+    } else {
+      newEpThemeColor = config?.THEME_COLOR_LIGHT || getConfig().EpThemeColor;
+    }
+
     applyTheme(dataTheme.value, newEpThemeColor);
 
     // 将所有更新写入 localStorage

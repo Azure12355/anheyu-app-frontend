@@ -802,3 +802,11 @@ export interface NavMenuItem {
   link: string;
   icon: string;
 }
+
+/**
+ * @description: 主题色配置表单接口
+ */
+export interface ThemeSettingsInfo {
+  themeColorLight?: string; // 亮色模式主题色
+  themeColorDark?: string; // 暗色模式主题色
+}
