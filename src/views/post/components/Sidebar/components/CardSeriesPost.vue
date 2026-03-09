@@ -170,7 +170,7 @@ const formatDate = (dateString: string) => {
   text-decoration: none;
 
   &:hover .title {
-    color: var(--anzhiyu-main);
+    color: var(--anzhiyu-theme);
   }
 }
 

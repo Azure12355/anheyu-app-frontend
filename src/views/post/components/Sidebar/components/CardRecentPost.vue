@@ -85,7 +85,7 @@ const formatDate = (dateString: string) => {
   color: inherit;
   text-decoration: none;
   &:hover .title {
-    color: var(--anzhiyu-main);
+    color: var(--anzhiyu-theme);
   }
 }
 

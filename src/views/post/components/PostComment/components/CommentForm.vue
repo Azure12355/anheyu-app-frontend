@@ -324,6 +324,7 @@ const handleAnonymousToggle = () => {
 
 // 检查用户信息是否需要完善
 const checkUserProfileComplete = (): boolean => {
+  console.log("[评论] checkUserProfileComplete", { isLoggedIn: isLoggedIn.value, isAnonymous: isAnonymous.value });
   if (!isLoggedIn.value) return true; // 未登录用户不需要检查
   if (isAnonymous.value) return true; // 匿名评论不需要检查
 
@@ -341,26 +342,48 @@ const checkUserProfileComplete = (): boolean => {
   const isDefaultNickname = nickname === emailPrefix;
 
   // 两个条件同时满足才需要完善信息
-  return !(hasNoWebsite && isDefaultNickname);
+  const result = !(hasNoWebsite && isDefaultNickname);
+  console.log("[评论] checkUserProfileComplete result", { nickname, emailPrefix, hasNoWebsite, isDefaultNickname, result });
+  return result;
+};
+
+// 处理发送按钮点击
+const handleSubmitClick = () => {
+  console.log("[评论] handleSubmitClick 被调用, formRef:", formRef.value);
+  submitForm(formRef.value);
 };
 
 const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
+  console.log("[评论] submitForm 被调用", { formEl, formRef: formRef.value, props: props.parentId });
+  if (!formEl) {
+    console.warn("[评论] formEl 不存在，尝试使用 formRef");
+    formEl = formRef.value;
+    if (!formEl) {
+      console.error("[评论] formRef 也不存在，无法提交");
+      ElMessage.error("表单引用错误，请刷新页面重试");
+      return;
+    }
+  }
 
   // 前端拦截：匿名评论不允许被回复
   if (props.replyToIsAnonymous) {
+    console.log("[评论] 匿名评论不允许被回复");
     ElMessage.error("匿名评论不允许被回复");
     return;
   }
 
   // 检查是否需要完善用户信息
-  if (!checkUserProfileComplete()) {
+  const profileComplete = checkUserProfileComplete();
+  console.log("[评论] 用户信息是否完整:", profileComplete);
+  if (!profileComplete) {
     ElMessage.warning("请先完善您的个人信息");
     showProfileDialog.value = true;
     return;
   }
 
+  console.log("[评论] 开始表单验证");
   await formEl.validate(async valid => {
+    console.log("[评论] 表单验证结果:", valid);
     if (valid) {
       isSubmitting.value = true;
 
@@ -418,6 +441,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       } finally {
         isSubmitting.value = false;
       }
+    } else {
+      // 表单验证失败
+      console.warn("表单验证失败", form);
     }
   });
 };
@@ -1049,7 +1075,7 @@ defineExpose({
                 size="small"
                 :loading="isSubmitting"
                 :disabled="isSubmitDisabled"
-                @click="submitForm(formRef)"
+                @click="handleSubmitClick"
               >
                 发送
               </el-button>
@@ -1110,7 +1136,7 @@ defineExpose({
               class="submit-button"
               :loading="isSubmitting"
               :disabled="isSubmitDisabled"
-              @click="submitForm(formRef)"
+              @click="handleSubmitClick"
             >
               发送
             </el-button>
@@ -1599,7 +1625,7 @@ defineExpose({
     position: absolute;
     right: 16px;
     bottom: 16px;
-    z-index: 3;
+    z-index: 20;
     display: flex;
     gap: 8px;
     align-items: center;
