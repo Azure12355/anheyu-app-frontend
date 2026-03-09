@@ -605,7 +605,7 @@ defineExpose({
   left: 0;
   z-index: 2;
   width: 4px;
-  background-color: var(--anzhiyu-main);
+  background-color: var(--anzhiyu-theme);
   border-radius: 4px;
   opacity: 0;
   transition:

@@ -85,7 +85,7 @@
       figcaption {
         color: var(--anzhiyu-fontcolor);
         background: var(--anzhiyu-card-bg);
-        border-color: var(--anzhiyu-main);
+        border-color: var(--anzhiyu-theme);
       }
     }
   }
@@ -146,7 +146,7 @@
       }
 
       &:hover {
-        background: var(--anzhiyu-main);
+        background: var(--anzhiyu-theme);
         transition: all 0.3s;
 
         i {
@@ -371,7 +371,7 @@
     &:not(.custom-color)[open] {
       background: var(--anzhiyu-card-bg);
       border-radius: 15px;
-      border: 1px solid var(--anzhiyu-main);
+      border: var(--style-border-hover-always);
     }
 
     &.custom-color[open] {
@@ -419,7 +419,7 @@
 
     &:not(.custom-color)[open] > summary:not(.md-editor-code-head) {
       color: var(--anzhiyu-white) !important;
-      background: var(--anzhiyu-main);
+      background: var(--anzhiyu-theme);
       border-top: none !important;
       border-left: none !important;
       border-right: none !important;
@@ -456,7 +456,7 @@
 
     &:not(.custom-color) summary:not(.md-editor-code-head):hover {
       cursor: pointer;
-      background: var(--anzhiyu-main);
+      background: var(--anzhiyu-theme);
       color: var(--anzhiyu-white) !important;
       transition: 0.3s;
       box-shadow: var(--anzhiyu-shadow-main);
@@ -483,14 +483,14 @@
       font-weight: 500;
       color: var(--anzhiyu-white);
       cursor: pointer;
-      background: var(--anzhiyu-main);
+      background: var(--anzhiyu-theme);
       border: none;
       border-radius: 8px;
       transition: all 0.3s ease;
       user-select: none;
 
       &:hover {
-        background: var(--anzhiyu-main-op-deep);
+        background: var(--anzhiyu-theme-op-deep);
         box-shadow: var(--anzhiyu-shadow-main);
       }
     }
@@ -516,7 +516,7 @@
       font-weight: 500;
       color: var(--anzhiyu-white);
       cursor: pointer;
-      background: var(--anzhiyu-main);
+      background: var(--anzhiyu-theme);
       border: none;
       border-radius: 4px;
       transition: all 0.3s ease;
@@ -524,7 +524,7 @@
       vertical-align: baseline;
 
       &:hover {
-        background: var(--anzhiyu-main-op-deep);
+        background: var(--anzhiyu-theme-op-deep);
         box-shadow: var(--anzhiyu-shadow-main);
       }
     }
@@ -540,7 +540,7 @@
   .inline-underline {
     text-decoration: underline;
     text-underline-offset: 4px;
-    text-decoration-color: var(--anzhiyu-main);
+    text-decoration-color: var(--anzhiyu-theme);
   }
 
   .inline-emphasis-mark {
@@ -548,12 +548,12 @@
     text-emphasis-position: under left;
     -webkit-text-emphasis: filled circle;
     -webkit-text-emphasis-position: under left;
-    text-decoration-color: var(--anzhiyu-main);
+    text-decoration-color: var(--anzhiyu-theme);
   }
 
   .inline-wavy {
     text-decoration: underline wavy;
-    text-decoration-color: var(--anzhiyu-main);
+    text-decoration-color: var(--anzhiyu-theme);
     text-underline-offset: 3px;
   }
 
@@ -616,8 +616,8 @@
     color: var(--anzhiyu-white);
     text-decoration: none;
     cursor: pointer;
-    background: var(--anzhiyu-main);
-    border: 2px solid var(--anzhiyu-main);
+    background: var(--anzhiyu-theme);
+    border: 2px solid var(--anzhiyu-theme);
     border-radius: 8px;
     transition: all 0.3s ease;
 
@@ -636,8 +636,8 @@
     }
 
     &:hover {
-      background: var(--anzhiyu-main-op-deep);
-      border-color: var(--anzhiyu-main-op-deep);
+      background: var(--anzhiyu-theme-op-deep);
+      border-color: var(--anzhiyu-theme-op-deep);
       box-shadow: var(--anzhiyu-shadow-main);
       border-radius: 8px !important;
     }
@@ -703,12 +703,12 @@
     }
 
     &.btn-outline {
-      color: var(--anzhiyu-main);
+      color: var(--anzhiyu-theme);
       background: transparent;
 
       &:hover {
         color: var(--anzhiyu-white);
-        background: var(--anzhiyu-main);
+        background: var(--anzhiyu-theme);
       }
 
       &.btn-blue {
@@ -866,7 +866,7 @@
 
       &:hover {
         background: var(--anzhiyu-card-bg);
-        border-color: var(--anzhiyu-main);
+        border-color: var(--anzhiyu-theme);
         border-radius: 12px !important;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       }
@@ -1098,7 +1098,7 @@
       // 无颜色时的默认悬停效果
       &:not([class*="btn-color-"]):hover {
         .btn-icon {
-          border-color: var(--anzhiyu-main);
+          border-color: var(--anzhiyu-theme);
           transform: scale(1.1);
         }
       }
@@ -1411,10 +1411,10 @@
 
       &:hover {
         color: var(--anzhiyu-white);
-        background: var(--anzhiyu-main);
+        background: var(--anzhiyu-theme);
 
         .tag-link-left i {
-          color: var(--anzhiyu-main);
+          color: var(--anzhiyu-theme);
           transform: scale(1.1);
         }
 
@@ -1539,7 +1539,7 @@
 
         &:not(.active):hover {
           color: var(--anzhiyu-white);
-          background: var(--anzhiyu-main);
+          background: var(--anzhiyu-theme);
           border: var(--style-border-hover-always);
           transition: 0.3s;
         }
@@ -1614,7 +1614,7 @@
       text-align: center;
       font-size: 0.85em;
       line-height: 1.5em;
-      background: var(--anzhiyu-main);
+      background: var(--anzhiyu-theme);
       color: #fff;
       transition: all 0.3s ease-out 0s;
     }
@@ -1645,7 +1645,7 @@
       border-radius: 50%;
       content: "";
       box-sizing: content-box;
-      border: 0.2081rem solid var(--anzhiyu-main);
+      border: 0.2081rem solid var(--anzhiyu-theme);
       background: 0;
     }
   }
@@ -1750,7 +1750,7 @@
     &:hover {
       color: var(--anzhiyu-white);
       text-decoration: none;
-      background: var(--anzhiyu-main);
+      background: var(--anzhiyu-theme);
       border-radius: 0.25rem !important;
       box-shadow: var(--anzhiyu-shadow-lightblack);
     }
@@ -2477,7 +2477,7 @@
       top: 0;
       left: 0;
       height: 100%;
-      background: var(--anzhiyu-main); // 默认颜色，将被封面主色替换
+      background: var(--anzhiyu-theme); // 默认颜色，将被封面主色替换
       opacity: 0.08;
       transition: width 0.1s linear;
       pointer-events: none;
