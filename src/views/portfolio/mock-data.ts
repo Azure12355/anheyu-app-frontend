@@ -35,10 +35,26 @@ export const mockPortfolios: Portfolio[] = [
     solution:
       "We implemented a heavily optimized WebGL pipeline using Three.js instancing, combined with aggressive LOD (Level of Detail) management and texture compression (KTX2/Basis). For navigation, we introduced a hybrid UI that smoothly interpolates between classical scrolling and free 3D camera movement controlled by GSAP's physics engine.",
     gallery_images: [
-      "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=80",
-      "https://images.unsplash.com/photo-1549490349-8643362247b5?w=1200&q=80",
-      "https://images.unsplash.com/photo-1563089145-599997674d42?w=1200&q=80",
-      "https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=1200&q=80"
+      {
+        image:
+          "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=80",
+        link: ""
+      },
+      {
+        image:
+          "https://images.unsplash.com/photo-1549490349-8643362247b5?w=1200&q=80",
+        link: ""
+      },
+      {
+        image:
+          "https://images.unsplash.com/photo-1563089145-599997674d42?w=1200&q=80",
+        link: ""
+      },
+      {
+        image:
+          "https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=1200&q=80",
+        link: ""
+      }
     ]
   },
   {

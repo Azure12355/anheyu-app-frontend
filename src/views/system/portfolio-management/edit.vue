@@ -6,7 +6,10 @@ import {
   ArrowLeft,
   Check,
   Delete,
-  Plus
+  Plus,
+  Loading,
+  Link,
+  Rank
 } from "@element-plus/icons-vue";
 import {
   getPortfolioById,
@@ -14,7 +17,7 @@ import {
   updatePortfolio
 } from "@/api/portfolio";
 import { uploadArticleImage } from "@/api/post";
-import type { Portfolio } from "@/types/portfolio";
+import type { Portfolio, GalleryImageItem } from "@/types/portfolio";
 import {
   ProjectType,
   ProjectStatus,
@@ -41,6 +44,19 @@ const portfolioData = ref<Portfolio | null>(null);
 // 当前激活的 Tab
 const activeTab = ref("basic");
 
+const normalizeGalleryImageItem = (
+  item: string | GalleryImageItem
+): GalleryImageItem => {
+  if (typeof item === "string") {
+    return { image: item, link: "" };
+  }
+
+  return {
+    image: item.image || "",
+    link: item.link || ""
+  };
+};
+
 // 表单数据
 const formData = reactive({
   title: "",
@@ -61,7 +77,7 @@ const formData = reactive({
   client: "",
   challenge: "",
   solution: "",
-  gallery_images: [] as string[]
+  gallery_images: [] as GalleryImageItem[]
 });
 
 // 技术栈输入
@@ -71,9 +87,7 @@ const techInputValue = ref("");
 // 表单验证规则
 const rules = {
   title: [{ required: true, message: "请输入作品标题", trigger: "blur" }],
-  description: [
-    { required: true, message: "请输入作品描述", trigger: "blur" }
-  ],
+  description: [{ required: true, message: "请输入作品描述", trigger: "blur" }],
   project_type: [
     { required: true, message: "请选择项目分类", trigger: "change" }
   ]
@@ -125,7 +139,8 @@ const fetchPortfolio = async () => {
       client: data.client || "",
       challenge: data.challenge || "",
       solution: data.solution || "",
-      gallery_images: data.gallery_images || []
+      // 兼容旧的字符串数组格式和新的对象数组格式
+      gallery_images: (data.gallery_images || []).map(normalizeGalleryImageItem)
     });
   } catch (error) {
     ElMessage.error("获取作品详情失败");
@@ -144,7 +159,16 @@ const handleSave = async () => {
 
   saving.value = true;
   try {
-    const data = { ...formData };
+    const data = {
+      ...formData,
+      // 发送对象数组，保留图片对应链接；同时过滤空图片项
+      gallery_images: formData.gallery_images
+        .map(item => ({
+          image: (item.image || "").trim(),
+          link: (item.link || "").trim()
+        }))
+        .filter(item => item.image)
+    } as any;
 
     if (isNew.value) {
       await createPortfolio(data);
@@ -164,15 +188,11 @@ const handleSave = async () => {
 
 // 取消编辑
 const handleCancel = () => {
-  ElMessageBox.confirm(
-    "确定要取消编辑吗？未保存的更改将丢失。",
-    "提示",
-    {
-      confirmButtonText: "确定",
-      cancelButtonText: "继续编辑",
-      type: "warning"
-    }
-  )
+  ElMessageBox.confirm("确定要取消编辑吗？未保存的更改将丢失。", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "继续编辑",
+    type: "warning"
+  })
     .then(() => {
       router.push({ name: "PortfolioManagement" });
     })
@@ -212,7 +232,7 @@ const handleGalleryImageUpload = async (file: File) => {
     if (!url) {
       throw new Error("服务器未返回有效URL");
     }
-    formData.gallery_images.push(url);
+    formData.gallery_images.push({ image: url, link: "" });
     ElMessage.success("图片上传成功");
   } catch (error: any) {
     console.error("图库图片上传失败:", error);
@@ -304,6 +324,15 @@ onMounted(() => {
 
               <el-form-item label="封面图" prop="cover_url">
                 <ImageUpload v-model="formData.cover_url" :can-upload="true" />
+                <el-input
+                  v-model="formData.cover_url"
+                  placeholder="或直接输入图片URL"
+                  style="margin-top: 8px"
+                >
+                  <template #prefix>
+                    <el-icon><Link /></el-icon>
+                  </template>
+                </el-input>
               </el-form-item>
 
               <el-form-item label="项目分类" prop="project_type">
@@ -335,9 +364,9 @@ onMounted(() => {
 
               <el-form-item label="项目层级" prop="tier">
                 <el-radio-group v-model="formData.tier">
-                  <el-radio label="normal">普通</el-radio>
-                  <el-radio label="recommended">推荐 ⭐</el-radio>
-                  <el-radio label="featured">精选 👑</el-radio>
+                  <el-radio value="normal">普通</el-radio>
+                  <el-radio value="recommended">推荐 ⭐</el-radio>
+                  <el-radio value="featured">精选 👑</el-radio>
                 </el-radio-group>
               </el-form-item>
 
@@ -461,9 +490,7 @@ onMounted(() => {
                   v-model="formData.demo_url"
                   placeholder="请输入演示地址（可选）"
                   clearable
-                >
-                  <template #prepend>https://</template>
-                </el-input>
+                />
               </el-form-item>
 
               <el-form-item label="GitHub 地址">
@@ -471,9 +498,7 @@ onMounted(() => {
                   v-model="formData.github_url"
                   placeholder="请输入 GitHub 地址（可选）"
                   clearable
-                >
-                  <template #prepend>https://</template>
-                </el-input>
+                />
               </el-form-item>
 
               <el-form-item label="项目图库">
@@ -482,23 +507,35 @@ onMounted(() => {
                     v-model="formData.gallery_images"
                     item-key="index"
                     class="gallery-list"
+                    handle=".drag-handle"
                   >
                     <template #item="{ element, index }">
                       <div class="gallery-item">
-                        <el-image
-                          :src="element"
-                          fit="cover"
-                          class="gallery-image"
-                        />
-                        <div class="gallery-item-actions">
-                          <el-button
-                            type="danger"
-                            size="small"
-                            :icon="Delete"
-                            circle
-                            @click="removeGalleryImage(index)"
-                          />
+                        <div class="drag-handle">
+                          <el-icon><Rank /></el-icon>
                         </div>
+                        <div class="gallery-item-content">
+                          <ImageUpload
+                            v-model="element.image"
+                            :can-upload="true"
+                          />
+                          <el-input
+                            v-model="element.image"
+                            placeholder="或直接输入图片URL"
+                            class="gallery-image-input"
+                          >
+                            <template #prefix>
+                              <el-icon><Link /></el-icon>
+                            </template>
+                          </el-input>
+                        </div>
+                        <el-button
+                          type="danger"
+                          size="small"
+                          :icon="Delete"
+                          circle
+                          @click="removeGalleryImage(index)"
+                        />
                       </div>
                     </template>
                   </draggable>
@@ -522,7 +559,10 @@ onMounted(() => {
                     <div
                       class="upload-trigger"
                       :class="{ disabled: galleryUploading }"
-                      @click="!galleryUploading && ($refs.galleryFileInput as HTMLInputElement)?.click()"
+                      @click="
+                        !galleryUploading &&
+                        ($refs.galleryFileInput as HTMLInputElement)?.click()
+                      "
                     >
                       <el-icon v-if="!galleryUploading"><Plus /></el-icon>
                       <el-icon v-else class="is-loading">
@@ -547,6 +587,18 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+
+
+@keyframes rotating {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (width <= 768px) {
   .portfolio-edit-container {
     padding: 10px;
@@ -766,41 +818,58 @@ onMounted(() => {
 // 图库样式
 .gallery-upload-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 12px;
 }
 
 .gallery-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 12px;
 }
 
 .gallery-item {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  overflow: hidden;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  background: var(--el-fill-color-light);
   border: var(--style-border);
   border-radius: 8px;
+  transition: all 0.3s;
 
-  .gallery-image {
-    width: 100%;
-    height: 100%;
+  &:hover {
+    background: var(--el-fill-color-lighter);
   }
 
-  .gallery-item-actions {
-    position: absolute;
-    inset: 0;
+  .drag-handle {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgb(0 0 0 / 50%);
-    opacity: 0;
-    transition: opacity 0.3s;
+    width: 24px;
+    height: 100%;
+    min-height: 120px;
+    color: var(--el-text-color-secondary);
+    cursor: grab;
+    transition: color 0.3s;
 
     &:hover {
-      opacity: 1;
+      color: var(--el-color-primary);
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .gallery-item-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+
+    .gallery-image-input {
+      width: 100%;
     }
   }
 }
@@ -808,9 +877,9 @@ onMounted(() => {
 .gallery-uploader {
   &.is-uploading {
     .upload-trigger {
-      border-color: var(--el-color-primary);
       color: var(--el-color-primary);
       cursor: not-allowed;
+      border-color: var(--el-color-primary);
     }
   }
 }
@@ -840,15 +909,6 @@ onMounted(() => {
 
   .is-loading {
     animation: rotating 1s linear infinite;
-  }
-}
-
-@keyframes rotating {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
   }
 }
 </style>
